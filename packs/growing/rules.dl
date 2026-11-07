@@ -1,0 +1,4 @@
+% Fixed selection rules. Learned facts (supported, alias) live in learned.dl and are appended by grow.py.
+algorithm(K,A) :- task(K,A), supported(A).
+algorithm(K,A) :- task(K,T), alias(T,A), supported(A).
+emit(task.py.j2,P,K) :- algorithm(K,A), destination(K,P).

@@ -1,0 +1,23 @@
+{% raw %}
+import heapq
+
+
+def solve(jobs):
+    order = sorted(jobs, key=lambda j: (j[0], j[3]))
+    n = len(order)
+    heap = []
+    result = []
+    t = 0
+    i = 0
+    while i < n or heap:
+        if not heap and order[i][0] > t:
+            t = order[i][0]
+        while i < n and order[i][0] <= t:
+            a, d, p, jid = order[i]
+            heapq.heappush(heap, (p, a, jid, d))
+            i += 1
+        p, a, jid, d = heapq.heappop(heap)
+        result.append([jid, t, t + d])
+        t += d
+    return result
+{% endraw %}

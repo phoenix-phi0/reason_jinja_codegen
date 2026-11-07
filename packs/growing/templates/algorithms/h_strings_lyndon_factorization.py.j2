@@ -1,0 +1,20 @@
+{% raw %}
+def solve(s):
+    n = len(s)
+    res = []
+    i = 0
+    while i < n:
+        j = i + 1
+        k = i
+        while j < n and s[k] <= s[j]:
+            if s[k] < s[j]:
+                k = i
+            else:
+                k += 1
+            j += 1
+        length = j - k
+        while i <= k:
+            res.append(s[i:i + length])
+            i += length
+    return res
+{% endraw %}

@@ -1,0 +1,44 @@
+{% raw %}
+def solve(s):
+    n = len(s)
+    i = 0
+    total = 0
+    term = 0
+    op = '+'  # operator preceding current term
+    # parse first number, then loop
+    # handle by tokenizing sequentially
+    cur_op_mul = None  # pending * or / within term
+    sign = 1
+    first = True
+    while i < n:
+        c = s[i]
+        if c == ' ':
+            i += 1
+            continue
+        if c.isdigit():
+            j = i
+            while j < n and s[j].isdigit():
+                j += 1
+            num = int(s[i:j])
+            i = j
+            if first:
+                term = num
+                first = False
+            elif cur_op_mul == '*':
+                term = term * num
+            elif cur_op_mul == '/':
+                q = abs(term) // num
+                term = q if term >= 0 else -q
+            cur_op_mul = None
+            continue
+        if c == '*' or c == '/':
+            cur_op_mul = c
+        else:  # + or -
+            total += sign * term
+            sign = 1 if c == '+' else -1
+            first = True
+            cur_op_mul = None
+        i += 1
+    total += sign * term
+    return total
+{% endraw %}

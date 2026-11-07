@@ -1,0 +1,76 @@
+{% raw %}
+import sys
+
+
+def solve(n, placed):
+    if n == 0:
+        return [1, []] if not placed else [0, None]
+    forced = [-1] * n
+    for item in placed:
+        r, c = item[0], item[1]
+        if not (0 <= r < n and 0 <= c < n):
+            return [0, None]
+        if forced[r] != -1 and forced[r] != c:
+            return [0, None]
+        forced[r] = c
+    # quick pairwise validation of pre-placed queens
+    cells = [(r, forced[r]) for r in range(n) if forced[r] >= 0]
+    cs = set()
+    d1 = set()
+    d2 = set()
+    for r, c in cells:
+        if c in cs or (r - c) in d1 or (r + c) in d2:
+            return [0, None]
+        cs.add(c)
+        d1.add(r - c)
+        d2.add(r + c)
+
+    old = sys.getrecursionlimit()
+    if old < n + 100:
+        sys.setrecursionlimit(n + 100)
+
+    full = (1 << n) - 1
+    p = [0] * n
+    first = [None]
+
+    def dfs(r, cols, ld, rd):
+        if r == n:
+            if first[0] is None:
+                first[0] = p[:]
+            return 1
+        occupied = cols | ld | rd
+        f = forced[r]
+        if f >= 0:
+            bit = 1 << f
+            if occupied & bit:
+                return 0
+            p[r] = f
+            return dfs(r + 1, cols | bit, ((ld | bit) << 1) & full, (rd | bit) >> 1)
+        avail = full & ~occupied
+        total = 0
+        while avail:
+            bit = avail & -avail
+            avail ^= bit
+            p[r] = bit.bit_length() - 1
+            total += dfs(r + 1, cols | bit, ((ld | bit) << 1) & full, (rd | bit) >> 1)
+        return total
+
+    if not placed:
+        total = 0
+        for c in range(n // 2):
+            bit = 1 << c
+            p[0] = c
+            total += 2 * dfs(1, bit, (bit << 1) & full, bit >> 1)
+        if n % 2 == 1:
+            c = n // 2
+            bit = 1 << c
+            p[0] = c
+            total += dfs(1, bit, (bit << 1) & full, bit >> 1)
+        count = total
+    else:
+        count = dfs(0, 0, 0, 0)
+
+    if count == 0:
+        return [0, None]
+    return [count, first[0]]
+{% endraw %}

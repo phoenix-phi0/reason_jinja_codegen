@@ -1,0 +1,12 @@
+{% raw %}
+def solve(nums):
+    if not nums:
+        return 0
+    lo = hi = nums[0]
+    for x in nums:
+        if x < lo:
+            lo = x
+        elif x > hi:
+            hi = x
+    return hi - lo
+{% endraw %}

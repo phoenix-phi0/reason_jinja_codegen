@@ -1,0 +1,32 @@
+# local environments and caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.cache/
+.lib_check_cache.json
+
+# secrets and local credentials
+.env
+.env.*
+*.pem
+*.key
+
+# generated outputs, logs, backups, and evaluation run data
+generated/
+reports/
+benchmark_results.json
+exercise_results.json
+*.log
+*.pid
+*.bak
+*~
+
+# evolution runtime: pending candidates, limited drafts, and locks
+# published versions under evolution_library/versions/ stay tracked
+evolution_library/candidates/
+evolution_library/limited/
+evolution_library/request.lock

@@ -1,0 +1,24 @@
+{%- macro num(v) -%}{{ v if relations.has('arg', key, v, 'int') else (v|int) }}{%- endmacro -%}
+{%- set rs = [] -%}
+{%- for r in relations.rows('range_rule', key) %}{% set _ = rs.append([r[1]|int, r[2], r[3]]) %}{% endfor -%}
+{%- set items = [] -%}
+{%- for r in rs|sort %}{% set _ = items.append('[' ~ num(r[1]) ~ ', ' ~ ('True' if r[2] == 'yes' else 'False') ~ ']') %}{% endfor -%}
+{%- set lof = relations.rows('range_from', key) -%}
+{%- set lo = num(lof[0][-1]) if lof else '1' -%}
+{%- set hi = num(relations.one('range_to', key)) -%}
+{%- set dfl = relations.rows('range_default', key) -%}
+{%- set dv = 'True' if dfl and dfl[0][-1] == 'yes' else 'False' -%}
+{%- set outs = relations.rows('range_output', key) -%}
+{%- set form = outs[0][-1] if outs else 'count' -%}
+def solve({{ params|join(', ') }}):
+    rules = [{{ items|join(', ') }}]
+    total = 0
+    for x in range({{ lo }}, {{ hi }} + 1):
+        verdict = {{ dv }}
+        for d, v in rules:
+            if x % d == 0:
+                verdict = v
+                break
+        if verdict:
+            total += {{ '1' if form == 'count' else 'x' }}
+    return total

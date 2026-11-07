@@ -1,0 +1,24 @@
+{%- set walk = relations.rows('walk', key)|map('last')|list -%}
+{%- set eight = relations.one('neighbours', key) == '8' -%}
+def solve({{ params|join(', ') }}):
+    grid = {{ relations.one('grid', key) }}
+    cells = [(r, c) for r in range(len(grid)) for c in range(len(grid[r])) if grid[r][c] in {{ walk|pyrepr }}]
+    label = {cell: i for i, cell in enumerate(cells)}
+    changed = True
+    while changed:  # relax labels to the smallest label of any neighbour until nothing changes
+        changed = False
+        for (r, c) in cells:
+            for dr in (-1, 0, 1):
+                for dc in (-1, 0, 1):
+                    if (dr or dc) and ({{ eight }} or dr == 0 or dc == 0) and (r + dr, c + dc) in label:
+                        if label[(r + dr, c + dc)] < label[(r, c)]:
+                            label[(r, c)] = label[(r + dr, c + dc)]
+                            changed = True
+    sizes = {}
+    for cell in cells:
+        sizes[label[cell]] = sizes.get(label[cell], 0) + 1
+{% if relations.has('ask', key, 'largest_component') %}
+    return max(sizes.values()) if sizes else 0
+{% else %}
+    return len(sizes)
+{% endif %}

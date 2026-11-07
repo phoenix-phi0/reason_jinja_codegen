@@ -1,0 +1,22 @@
+from collections import deque
+
+def solve(graph):
+    nodes = dict.fromkeys(graph)
+    for neighbors in graph.values():
+        nodes.update(dict.fromkeys(neighbors))
+    degree = dict.fromkeys(nodes, 0)
+    for neighbors in graph.values():
+        for node in neighbors:
+            degree[node] += 1
+    ready = deque(n for n in nodes if degree[n] == 0)
+    result = []
+    while ready:
+        node = ready.popleft()
+        result.append(node)
+        for neighbor in graph.get(node, []):
+            degree[neighbor] -= 1
+            if degree[neighbor] == 0:
+                ready.append(neighbor)
+    if len(result) != len(nodes):
+        raise ValueError('cycle')
+    return result

@@ -1,0 +1,136 @@
+{
+  "facts": {
+    "task": [
+      [
+        "binary_search",
+        "binary_search"
+      ],
+      [
+        "merge_intervals",
+        "merge_intervals"
+      ],
+      [
+        "topological_sort",
+        "topological_sort"
+      ],
+      [
+        "shortest_path",
+        "shortest_path"
+      ],
+      [
+        "csv_totals",
+        "csv_totals"
+      ],
+      [
+        "moving_average",
+        "moving_average"
+      ],
+      [
+        "flatten",
+        "flatten"
+      ],
+      [
+        "chunks",
+        "chunks"
+      ],
+      [
+        "retry",
+        "retry"
+      ],
+      [
+        "lru_cache",
+        "lru_cache"
+      ],
+      [
+        "bank_account",
+        "bank_account"
+      ],
+      [
+        "async_map",
+        "async_map"
+      ],
+      [
+        "config_validation",
+        "config_validation"
+      ],
+      [
+        "stable_unique",
+        "stable_unique"
+      ]
+    ],
+    "destination": [
+      [
+        "binary_search",
+        "binary_search.py"
+      ],
+      [
+        "merge_intervals",
+        "merge_intervals.py"
+      ],
+      [
+        "topological_sort",
+        "topological_sort.py"
+      ],
+      [
+        "shortest_path",
+        "shortest_path.py"
+      ],
+      [
+        "csv_totals",
+        "csv_totals.py"
+      ],
+      [
+        "moving_average",
+        "moving_average.py"
+      ],
+      [
+        "flatten",
+        "flatten.py"
+      ],
+      [
+        "chunks",
+        "chunks.py"
+      ],
+      [
+        "retry",
+        "retry.py"
+      ],
+      [
+        "lru_cache",
+        "lru_cache.py"
+      ],
+      [
+        "bank_account",
+        "bank_account.py"
+      ],
+      [
+        "async_map",
+        "async_map.py"
+      ],
+      [
+        "config_validation",
+        "config_validation.py"
+      ],
+      [
+        "stable_unique",
+        "stable_unique.py"
+      ]
+    ]
+  },
+  "data": {
+    "binary_search": {},
+    "merge_intervals": {},
+    "topological_sort": {},
+    "shortest_path": {},
+    "csv_totals": {},
+    "moving_average": {},
+    "flatten": {},
+    "chunks": {},
+    "retry": {},
+    "lru_cache": {},
+    "bank_account": {},
+    "async_map": {},
+    "config_validation": {},
+    "stable_unique": {}
+  }
+}

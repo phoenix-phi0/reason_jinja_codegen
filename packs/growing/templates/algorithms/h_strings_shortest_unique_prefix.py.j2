@@ -1,0 +1,26 @@
+{% raw %}
+from os.path import commonprefix
+
+
+def solve(words):
+    n = len(words)
+    if n == 0:
+        return []
+    order = sorted(range(n), key=words.__getitem__)
+    need = [0] * n  # max LCP with a sorted neighbour
+    lcp = [0] * (n - 1)
+    for k in range(n - 1):
+        a = words[order[k]]
+        b = words[order[k + 1]]
+        lcp[k] = len(commonprefix((a, b)))
+    ans = [None] * n
+    for k in range(n):
+        m = 0
+        if k > 0 and lcp[k - 1] > m:
+            m = lcp[k - 1]
+        if k < n - 1 and lcp[k] > m:
+            m = lcp[k]
+        w = words[order[k]]
+        ans[order[k]] = w[: m + 1] if m < len(w) else w
+    return ans
+{% endraw %}

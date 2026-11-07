@@ -1,0 +1,47 @@
+{%- set q = relations.one('ask', key) -%}
+{%- set once = relations.one('use_mode', key) == 'once' -%}
+{%- set ordered = relations.one('order_mode', key) == 'matters' -%}
+{%- set mod = relations.rows('modulo', key) -%}
+{%- set terms = relations.rows('terms', key) -%}
+{%- set none_answer = value(relations.one('no_answer', key)) if q == 'min_count' else ('0' if q == 'count_ways' else 'False') -%}
+def {{ fname|default('solve') }}({{ (fparams|default(params))|join(', ') }}):
+    items = list({{ relations.one('items', key) }})
+{% if relations.rows('unique', key) %}
+    items = sorted(set(items))
+{% endif %}
+    if any(v < 0 for v in items){% if not once %} or 0 in items{% endif %}:
+        raise ValueError('invalid items')
+    target = {{ relations.one('target', key) }}
+{% if terms %}
+    limit = {{ terms[0][2] }}
+    if limit < 0:
+        return {{ none_answer }}
+{% endif %}
+    if target < 0:
+        return {{ none_answer }}
+    from functools import lru_cache
+
+    @lru_cache(maxsize=None)
+    def count(rem, start):
+        # {number of items: number of selections} that add up to rem, choosing positions from `start` on
+        # (positions increase for once, never decrease for unordered multisets, are free for ordered sequences)
+        table = {0: 1} if rem == 0 else {}
+        for i in range(start, len(items)):
+            if items[i] <= rem:
+                for k, c in count(rem - items[i], {{ 'i + 1' if once else ('0' if ordered else 'i') }}).items():
+                    table[k + 1] = table.get(k + 1, 0) + c
+        return table
+
+    by_length = count(target, 0)
+{% if terms %}
+    by_length = {k: c for k, c in by_length.items() if {{ 'k == limit' if terms[0][1] == 'exactly' else 'k <= limit' }}}
+{% endif %}
+    lengths = [k for k, c in by_length.items() if c > 0]
+{% if q == 'min_count' %}
+    return min(lengths) if lengths else {{ none_answer }}
+{% elif q == 'count_ways' %}
+    return sum(by_length.values()){% if mod %} % {{ mod[0][1]|int }}{% endif %}
+
+{% else %}
+    return bool(lengths)
+{% endif %}

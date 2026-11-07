@@ -1,0 +1,21 @@
+{% raw %}
+def solve(coins, amount):
+    if amount == 0:
+        return 0
+    coins = sorted(set(c for c in coins if c > 0))
+    if not coins:
+        return -1
+    if coins[0] > amount:
+        return -1
+    INF = float('inf')
+    dp = [INF] * (amount + 1)
+    dp[0] = 0
+    for c in coins:
+        if c > amount:
+            break
+        for a in range(c, amount + 1):
+            v = dp[a - c] + 1
+            if v < dp[a]:
+                dp[a] = v
+    return dp[amount] if dp[amount] != INF else -1
+{% endraw %}

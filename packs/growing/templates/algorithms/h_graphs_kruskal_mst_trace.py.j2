@@ -1,0 +1,46 @@
+{% raw %}
+def solve(n, edges):
+    if n <= 1:
+        return [0, []]
+    items = []
+    for i, e in enumerate(edges):
+        u, v, w = e[0], e[1], e[2]
+        if u > v:
+            u, v = v, u
+        items.append((w, u, v, i))
+    items.sort()
+
+    parent = list(range(n))
+    size = [1] * n
+
+    def find(x):
+        root = x
+        while parent[root] != root:
+            root = parent[root]
+        while parent[x] != root:
+            parent[x], x = root, parent[x]
+        return root
+
+    total = 0
+    chosen = []
+    comps = n
+    for w, u, v, _ in items:
+        if u == v:
+            continue
+        ru = find(u)
+        rv = find(v)
+        if ru == rv:
+            continue
+        if size[ru] < size[rv]:
+            ru, rv = rv, ru
+        parent[rv] = ru
+        size[ru] += size[rv]
+        total += w
+        chosen.append([u, v, w])
+        comps -= 1
+        if comps == 1:
+            break
+    if comps != 1:
+        return None
+    return [total, chosen]
+{% endraw %}

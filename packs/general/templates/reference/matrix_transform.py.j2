@@ -1,0 +1,23 @@
+{%- set outs = relations.rows('matrix_op', key) -%}
+{%- set form = outs[0][-1] if outs else 'transpose' -%}
+{%- set SWAP = {'transpose': 'mat[b][a]', 'rotate_cw': 'mat[R - 1 - b][a]', 'rotate_ccw': 'mat[b][C - 1 - a]', 'anti_transpose': 'mat[R - 1 - b][C - 1 - a]'} -%}
+{%- set KEEP = {'flip_horizontal': 'mat[a][C - 1 - b]', 'flip_vertical': 'mat[R - 1 - a][b]', 'rotate_180': 'mat[R - 1 - a][C - 1 - b]'} -%}
+def solve({{ params|join(', ') }}):
+    mat = {{ relations.one('iterate', key) }}
+    R = len(mat)
+    C = len(mat[0]) if R else 0
+    out = []
+{% if form in SWAP %}
+    for a in range(C):
+        line = []
+        for b in range(R):
+            line.append({{ SWAP[form] }})
+        out.append(line)
+{% else %}
+    for a in range(R):
+        line = []
+        for b in range(C):
+            line.append({{ KEEP[form] }})
+        out.append(line)
+{% endif %}
+    return out

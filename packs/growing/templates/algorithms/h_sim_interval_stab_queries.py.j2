@@ -1,0 +1,51 @@
+{% raw %}
+from bisect import bisect_left
+
+
+def solve(ops):
+    xs = sorted({op[1] for op in ops if op[0] == "query"})
+    n = len(xs)
+    if n == 0:
+        return []
+    tree = [None] * (2 * n)
+    where = {}
+    out = []
+    for op in ops:
+        t = op[0]
+        if t == "add":
+            _, i, s, e = op
+            l = bisect_left(xs, s)
+            r = bisect_left(xs, e)
+            nodes = []
+            l += n
+            r += n
+            while l < r:
+                if l & 1:
+                    nodes.append(l)
+                    l += 1
+                if r & 1:
+                    r -= 1
+                    nodes.append(r)
+                l >>= 1
+                r >>= 1
+            for nd in nodes:
+                if tree[nd] is None:
+                    tree[nd] = set()
+                tree[nd].add(i)
+            where[i] = nodes
+        elif t == "remove":
+            i = op[1]
+            for nd in where.pop(i, ()):
+                tree[nd].discard(i)
+        else:
+            p = bisect_left(xs, op[1]) + n
+            res = []
+            while p >= 1:
+                st = tree[p]
+                if st:
+                    res.extend(st)
+                p >>= 1
+            res.sort()
+            out.append(res)
+    return out
+{% endraw %}

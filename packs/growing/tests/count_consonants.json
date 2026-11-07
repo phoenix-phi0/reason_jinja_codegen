@@ -1,0 +1,1 @@
+[{"args": [""], "expected": 0}, {"args": ["a"], "expected": 0}, {"args": ["hello world"], "expected": 7}, {"args": ["AEIOU xyz"], "expected": 3}, {"args": ["Rhythm"], "expected": 6}, {"args": ["abc def ghi"], "expected": 6}, {"args": ["  spaced  out "], "expected": 5}, {"args": ["Mixed CASE vowels"], "expected": 9}]

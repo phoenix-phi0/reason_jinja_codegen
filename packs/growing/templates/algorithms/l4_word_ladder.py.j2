@@ -1,0 +1,55 @@
+{% raw %}
+from collections import deque, defaultdict
+
+
+def solve(begin, end, words):
+    wordset = set(words)
+    if end not in wordset:
+        return 0
+    if begin == end:
+        return 1
+
+    # Build pattern buckets (wildcard at each position)
+    buckets = defaultdict(list)
+    for w in wordset:
+        for i in range(len(w)):
+            buckets[w[:i] + "*" + w[i + 1:]].append(w)
+
+    # Bidirectional BFS
+    front = {begin}
+    back = {end}
+    visited_f = {begin}
+    visited_b = {end}
+    steps = 1
+
+    while front and back:
+        # expand smaller frontier
+        if len(front) <= len(back):
+            nxt = set()
+            for w in front:
+                for i in range(len(w)):
+                    key = w[:i] + "*" + w[i + 1:]
+                    for nb in buckets.get(key, ()):
+                        if nb in visited_b:
+                            return steps + 1
+                        if nb not in visited_f:
+                            visited_f.add(nb)
+                            nxt.add(nb)
+                    # clear to avoid rescanning
+                    buckets[key] = []
+            front = nxt
+        else:
+            nxt = set()
+            for w in back:
+                for i in range(len(w)):
+                    key = w[:i] + "*" + w[i + 1:]
+                    for nb in buckets.get(key, ()):
+                        if nb in visited_f:
+                            return steps + 1
+                        if nb not in visited_b:
+                            visited_b.add(nb)
+                            nxt.add(nb)
+            back = nxt
+        steps += 1
+    return 0
+{% endraw %}

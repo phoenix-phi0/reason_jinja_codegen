@@ -1,0 +1,18 @@
+{% raw %}
+def solve(n, parts, limit):
+    MOD = 1000000007
+    dp = [0] * (n + 1)
+    dp[0] = 1
+    for p in parts:
+        new = [0] * (n + 1)
+        w = (limit + 1) * p
+        for j in range(n + 1):
+            v = dp[j]
+            if j >= p:
+                v += new[j - p]
+            if j >= w:
+                v -= dp[j - w]
+            new[j] = v % MOD
+        dp = new
+    return dp[n] % MOD
+{% endraw %}

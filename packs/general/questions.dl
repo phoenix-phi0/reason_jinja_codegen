@@ -1,0 +1,7 @@
+% Consultation: instead of only refusing, say what the statement would have to tell us.
+% Driver facts used: assumed_size(P,A) (size derived by the driver, not stated), guarantees via unmet/requires (costs.dl).
+% ask_guarantee(P,A,C): a candidate function requires C of the parameter bound to its role; not guaranteed, not waived.
+% ask_size(P,A): some role has no feasible function and a parameter driving a candidate has only an assumed size.
+% error(...) rules in costs.dl are unchanged; these facts only describe what to ask.
+ask_guarantee(P,A,C) :- unmet(P,F,C), requires(F,R,C), binds(P,R,A).
+ask_size(P,A) :- why_slow(P,R), candidate(P,F), role(F,R), drives(F,D), binds(P,D,A), assumed_size(P,A).

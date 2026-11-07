@@ -1,0 +1,31 @@
+{#- Shared macros for composition: where a stage's elements come from (source_expr) and the boolean expression of a condition tree (tree_expr).
+    Called from schemas/seq_fold.py.j2 and reference/seq_fold.py.j2 with the stage key passed explicitly. -#}
+{%- macro num(v) -%}{{ (v|int) if v.lstrip('-').isdigit() else v }}{%- endmacro -%}
+{%- macro ref(k, x) -%}{%- set r = relations.rows('stage_ref', k, x) -%}{{ ('_s' ~ r[0][-1]) if r else x }}{%- endmacro -%}
+{#- an integer written in a fact: a literal, or (staged problems) the variable of the earlier stage it names (stageJ -> _sJ), or a parameter -#}
+{%- macro intval(k, v) -%}{{ (v|int) if v.lstrip('-').isdigit() else ref(k, v) }}{%- endmacro -%}
+{%- macro source_expr(k) -%}
+{%- set srcs = relations.rows('source', k) -%}
+{%- if srcs and srcs[0][1] == 'range' -%}range({{ intval(k, srcs[0][2]) }}, {{ intval(k, srcs[0][3]) }} + 1)
+{%- elif srcs and srcs[0][1] == 'digits' -%}[int(c) for c in str(abs({{ ref(k, srcs[0][2]) }}))]
+{%- elif srcs and srcs[0][1] == 'chars' -%}{{ ref(k, srcs[0][2]) }}
+{%- elif srcs and srcs[0][1] == 'stage' -%}_s{{ srcs[0][2] }}
+{%- else -%}{{ relations.one('iterate', k) }}
+{%- endif -%}
+{%- endmacro -%}
+{%- macro leaf_expr(kind, a, b, COND, CMP) -%}
+{%- if kind == 'keep' -%}{{ COND[a] }}
+{%- elif kind == 'drop' -%}not ({{ COND[a] }})
+{%- elif kind == 'remainder' -%}x % {{ a|int }} == {{ b|int }}
+{%- else -%}{{ ('abs(x) ' ~ CMP[a[4:]]) if a.startswith('abs_') else ('x ' ~ CMP[a]) }} {{ b|int }}
+{%- endif -%}
+{%- endmacro -%}
+{%- macro tree_expr(k, id, COND, CMP) -%}
+{%- set c = relations.rows('cond', k, id) -%}
+{%- if c -%}{{ leaf_expr(c[0][2], c[0][3], c[0][4], COND, CMP) }}
+{%- else -%}{%- set e = relations.rows('expr', k, id)[0] -%}
+{%- if e[2] == 'not' -%}not ({{ tree_expr(k, e[3], COND, CMP) }})
+{%- else -%}({{ tree_expr(k, e[3], COND, CMP) }}) {{ e[2] }} ({{ tree_expr(k, e[4], COND, CMP) }})
+{%- endif -%}
+{%- endif -%}
+{%- endmacro -%}

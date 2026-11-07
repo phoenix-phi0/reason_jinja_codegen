@@ -1,0 +1,6 @@
+{%- set f = relations.rows('date_fields', key)[0] -%}
+{%- set o = relations.rows('date_origin', key) -%}
+{%- set form = relations.one('date_form', key) -%}
+{%- set org = [o[0][1]|int, o[0][2]|int, o[0][3]|int] if o else [1970, 1, 1] -%}
+def solve({{ params|join(', ') }}):
+    return date_offset({{ f[1] }}, {{ f[2] }}, {{ f[3] }}, {{ org[0] }}, {{ org[1] }}, {{ org[2] }}, {{ form|pyrepr }})

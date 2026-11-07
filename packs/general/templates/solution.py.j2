@@ -1,0 +1,9 @@
+{#- Library functions chosen by algorithms.dl (uses), then the schema's glue code. params are the function's argument names. -#}
+{%- set schema = relations.one('schema', key) -%}
+{%- set params = item.params -%}
+{%- macro value(v) -%}{{ 'None' if v == 'none' else (v|int) }}{%- endmacro -%}
+{%- for row in relations.rows('uses', key) %}
+{% include 'lib/' ~ row[1] ~ '.py' %}
+
+{% endfor %}
+{% include 'schemas/' ~ schema ~ '.py.j2' %}

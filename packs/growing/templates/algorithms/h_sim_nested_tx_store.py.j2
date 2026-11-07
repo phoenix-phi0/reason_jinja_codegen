@@ -1,0 +1,60 @@
+{% raw %}
+def solve(ops):
+    store = {}
+    counts = {}
+    # each transaction: undo log list of (key, old_value or sentinel)
+    stack = []
+    MISSING = object()
+    out = []
+
+    def set_val(key, val):
+        # val may be MISSING for delete; returns old value
+        old = store.get(key, MISSING)
+        if old is not MISSING:
+            c = counts[old] - 1
+            if c:
+                counts[old] = c
+            else:
+                del counts[old]
+        if val is MISSING:
+            store.pop(key, None)
+        else:
+            store[key] = val
+            counts[val] = counts.get(val, 0) + 1
+        return old
+
+    for op in ops:
+        cmd = op[0]
+        if cmd == "SET":
+            key, val = op[1], op[2]
+            old = set_val(key, val)
+            if stack:
+                stack[-1].append((key, old))
+        elif cmd == "DELETE":
+            key = op[1]
+            if key in store:
+                old = set_val(key, MISSING)
+                if stack:
+                    stack[-1].append((key, old))
+        elif cmd == "GET":
+            out.append(store.get(op[1]))
+        elif cmd == "COUNT":
+            out.append(counts.get(op[1], 0))
+        elif cmd == "BEGIN":
+            stack.append([])
+        elif cmd == "COMMIT":
+            if not stack:
+                out.append("NO TRANSACTION")
+            else:
+                log = stack.pop()
+                if stack:
+                    stack[-1].extend(log)
+        elif cmd == "ROLLBACK":
+            if not stack:
+                out.append("NO TRANSACTION")
+            else:
+                log = stack.pop()
+                for key, old in reversed(log):
+                    set_val(key, old)
+    return out
+{% endraw %}

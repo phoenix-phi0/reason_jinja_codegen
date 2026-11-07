@@ -1,0 +1,8 @@
+from itertools import islice
+
+def solve(values, size):
+    if type(size) is not int or size <= 0:
+        raise ValueError('positive integer size required')
+    iterator = iter(values)
+    while batch := list(islice(iterator, size)):
+        yield batch

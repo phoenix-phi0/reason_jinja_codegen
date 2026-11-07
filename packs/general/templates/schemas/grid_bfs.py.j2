@@ -1,0 +1,15 @@
+{%- set walk = relations.rows('walk', key)|map('last')|list -%}
+{%- set s = relations.rows('start_at', key)[0] -%}
+{%- set t = relations.rows('goal_at', key)[0] -%}
+{%- macro locate(kind, val) -%}
+{%- if kind == 'char' -%}grid_find(grid, {{ val|pyrepr }})
+{%- elif val == 'top_left' -%}((0, 0) if rows and cols else None)
+{%- else -%}((rows - 1, cols - 1) if rows and cols else None)
+{%- endif -%}
+{%- endmacro -%}
+def solve({{ params|join(', ') }}):
+    grid = {{ relations.one('grid', key) }}
+    rows = len(grid)
+    cols = len(grid[0]) if rows else 0
+    steps = grid_shortest_path(grid, {{ walk|sort|pyrepr }}, {{ locate(s[1], s[2]) }}, {{ locate(t[1], t[2]) }}, {{ relations.one('neighbours', key) == '8' }})
+    return {{ value(relations.one('no_answer', key)) }} if steps is None else steps

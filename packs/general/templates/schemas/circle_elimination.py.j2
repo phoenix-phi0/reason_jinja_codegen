@@ -1,0 +1,12 @@
+{%- macro num(v) -%}{{ v if relations.has('arg', key, v, 'int') else (v|int) }}{%- endmacro -%}
+{%- set form = relations.one('circle_form', key) -%}
+{%- set people_n = relations.one('circle_size', key) -%}
+{%- set step = num(relations.one('circle_step', key)) -%}
+{%- set base = relations.one('circle_base', key)|int -%}
+{%- set begin = num(relations.one('circle_from', key)) -%}
+def solve({{ params|join(', ') }}):
+{% if form == 'order' %}
+    return josephus_order({{ people_n }}, {{ step }}, {{ base }}, {{ begin }})
+{% else %}
+    return josephus_survivor({{ people_n }}, {{ step }}, {{ base }}, {{ begin }})
+{% endif %}

@@ -1,0 +1,9 @@
+{% raw %}
+def solve(s):
+    vowels = set("aeiouAEIOU")
+    count = 0
+    for c in s:
+        if ("a" <= c <= "z" or "A" <= c <= "Z") and c not in vowels:
+            count += 1
+    return count
+{% endraw %}

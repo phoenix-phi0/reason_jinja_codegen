@@ -1,0 +1,28 @@
+{%- set lifo = relations.one('container_mode', key) == 'stack' -%}
+{%- set form = relations.one('sim_form', key) -%}
+{%- set e = relations.one('empty_answer', key) -%}
+{%- set empty = 'None' if e == 'none' else (e|int) -%}
+def solve({{ params|join(', ') }}):
+    box = []
+    out = []
+    misses = 0
+    for op in {{ relations.one('iterate', key) }}:
+        if op[0] == 'push':
+            box.append(op[1])
+        elif not box:
+            out.append({{ empty }})
+            misses += 1
+        else:
+            index = {{ '-1' if lifo else '0' }}
+            out.append(box[index])
+            if op[0] == 'pop':
+                box.pop(index)
+{% if form == 'remaining' %}
+    return list(box)
+{% elif form == 'size' %}
+    return len(box)
+{% elif form == 'empty_count' %}
+    return misses
+{% else %}
+    return out
+{% endif %}

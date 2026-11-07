@@ -1,0 +1,18 @@
+from collections import deque
+
+def solve(graph, start, goal):
+    ready = deque([start])
+    parent = {start: None}
+    while ready:
+        node = ready.popleft()
+        if node == goal:
+            path = []
+            while node is not None:
+                path.append(node)
+                node = parent[node]
+            return path[::-1]
+        for neighbor in graph.get(node, []):
+            if neighbor not in parent:
+                parent[neighbor] = node
+                ready.append(neighbor)
+    return None

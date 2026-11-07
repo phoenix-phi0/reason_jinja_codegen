@@ -1,0 +1,24 @@
+{%- set OPS = {'difference': 'main - anti', 'reverse_difference': 'anti - main', 'sum': 'main + anti', 'main': 'main', 'anti': 'anti'} -%}
+{%- set op = relations.rows('diagonal_op', key)[0][-1] -%}
+{%- set center = relations.one('center_mode', key) -%}
+def solve({{ params|join(', ') }}):
+    mat = {{ relations.one('iterate', key) }}
+    rows = len(mat)
+    cols = len(mat[0]) if rows else 0
+    main = 0
+    anti = 0
+    for i in range(rows):
+        for j in range(cols):
+            v = int(mat[i][j])
+            on_main = i == j
+            on_anti = i + j == cols - 1
+            if on_main and on_anti:
+                if {{ center|pyrepr }} in ('both', 'main_only'):
+                    main += v
+                if {{ center|pyrepr }} in ('both', 'anti_only'):
+                    anti += v
+            elif on_main:
+                main += v
+            elif on_anti:
+                anti += v
+    return {{ OPS[op] }}

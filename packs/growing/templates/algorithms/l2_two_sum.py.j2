@@ -1,0 +1,11 @@
+{% raw %}
+def solve(nums, target):
+    seen = {}
+    for j, x in enumerate(nums):
+        i = seen.get(target - x)
+        if i is not None:
+            return [i, j]
+        if x not in seen:
+            seen[x] = j
+    return []
+{% endraw %}

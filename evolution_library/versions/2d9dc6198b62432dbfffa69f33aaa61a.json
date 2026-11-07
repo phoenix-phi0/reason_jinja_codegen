@@ -1,0 +1,45 @@
+{
+  "id": "2d9dc6198b62432dbfffa69f33aaa61a",
+  "status": "verified",
+  "candidate": {
+    "intent": "print_each",
+    "vocabulary": {
+      "intent": [
+        "print_each"
+      ],
+      "order": [
+        "preserve"
+      ],
+      "input": [
+        "int_list"
+      ],
+      "output": [
+        "stdout_lines"
+      ]
+    },
+    "rule": "evolved(P,print_each) :- intent(P,print_each), order(P,preserve), input(P,int_list), output(P,stdout_lines).",
+    "source": "def solve(nums):\n    for i in range(len(nums)):\n        print(nums[i])"
+  },
+  "validation": {
+    "source": "def solve(nums):\n    for i in range(len(nums)):\n        print(nums[i])\n",
+    "tests": 80,
+    "rule_selected": true,
+    "checks": "finite independent contract tests, not proof",
+    "contract": "print_each",
+    "reference": "exact_stdout_lines_and_none_return",
+    "scope": "整数数组，顺序与重复保留，每个元素一行，空数组无输出，返回None；长度≤100，测试元素-100到100，有限测试不是证明",
+    "test_kinds": [
+      "empty",
+      "singleton",
+      "duplicates",
+      "negative",
+      "preserved_order",
+      "boundary_100",
+      "seeded_random"
+    ],
+    "stdout_limits": {
+      "bytes": 16384,
+      "lines": 128
+    }
+  }
+}

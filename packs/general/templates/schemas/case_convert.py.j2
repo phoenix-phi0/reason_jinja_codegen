@@ -1,0 +1,2 @@
+def solve({{ params|join(', ') }}):
+    return case_convert({{ relations.one('iterate', key) }}, {{ relations.one('case_source', key)|pyrepr }}, {{ relations.rows('case_to', key)[0][-1]|pyrepr }})

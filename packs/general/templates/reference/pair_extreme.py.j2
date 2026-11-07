@@ -1,0 +1,28 @@
+{%- from 'composition.j2' import source_expr with context -%}
+{%- set pv = relations.rows('pair_value', key)[0] -%}
+{%- set fl = relations.rows('result_floor', key) -%}
+{%- set cp = relations.rows('result_cap', key) -%}
+{%- set EXPR = {'difference': 'a - b', 'reverse_difference': 'b - a', 'sum': 'a + b', 'abs_difference': 'abs(a - b)'} -%}
+{%- set e = relations.one('if_empty', key) -%}
+{%- macro bound_arg(r) -%}{{ r[1] if relations.has('arg', key, r[1], 'int') else (r[1]|int) }}{%- endmacro -%}
+def {{ fname|default('solve') }}({{ (fparams|default(params))|join(', ') }}):
+    values = list({{ source_expr(key) }})
+    best = None
+    for i in range(len(values)):
+        for j in range(i + 1, len(values)):
+            a = values[i]
+            b = values[j]
+            v = {{ EXPR[pv[1]] }}
+            if best is None or v {{ '>' if pv[2] == 'max' else '<' }} best:
+                best = v
+    if best is None:
+        return {{ 'None' if e == 'none' else (e|int) }}
+{% if fl %}
+    if best < {{ bound_arg(fl[0]) }}:
+        best = {{ bound_arg(fl[0]) }}
+{% endif %}
+{% if cp %}
+    if best > {{ bound_arg(cp[0]) }}:
+        best = {{ bound_arg(cp[0]) }}
+{% endif %}
+    return best

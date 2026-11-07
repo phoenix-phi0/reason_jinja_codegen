@@ -1,0 +1,49 @@
+{%- set src = relations.one('case_source', key) -%}
+{%- set dst = relations.rows('case_to', key)[0][-1] -%}
+def solve({{ params|join(', ') }}):
+    text = {{ relations.one('iterate', key) }}
+    src = {{ src|pyrepr }}
+    dst = {{ dst|pyrepr }}
+    sepmap = {'snake': '_', 'kebab': '-', 'space': ' '}
+    words = []
+    cur = ''
+    for ch in text:
+        if src in sepmap:
+            if ch == sepmap[src]:
+                if cur != '':
+                    words.append(cur)
+                cur = ''
+            else:
+                cur = cur + ch
+        else:
+            if ch.isupper() and cur != '':
+                words.append(cur)
+                cur = ch
+            else:
+                cur = cur + ch
+    if cur != '':
+        words.append(cur)
+    out = ''
+    for i in range(len(words)):
+        w = words[i].lower()
+        cap = w[:1].upper() + w[1:]
+        if dst == 'camel':
+            piece = w if i == 0 else cap
+            out = out + piece
+        elif dst == 'pascal':
+            out = out + cap
+        else:
+            if dst == 'snake':
+                piece, sep = w, '_'
+            elif dst == 'kebab':
+                piece, sep = w, '-'
+            elif dst == 'constant':
+                piece, sep = w.upper(), '_'
+            elif dst == 'space':
+                piece, sep = w, ' '
+            else:
+                piece, sep = cap, ' '
+            if i > 0:
+                out = out + sep
+            out = out + piece
+    return out

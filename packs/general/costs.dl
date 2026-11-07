@@ -1,0 +1,101 @@
+% Sizes, feasibility, algorithm selection and preconditions. Fixed file.
+% Driver facts: size(P,A,Class) (from the statement, else derived from the tests), complexity(F,C), role(F,R),
+% drives(F,Role), requires(F,Role,Cond) from templates/lib/*.json; candidate(P,F) comes from algorithms.dl.
+
+% ---------- what each library function is driven by, and how big that is
+binds(P,seq,A) :- iterate(P,A).
+binds(P,grid,A) :- grid(P,A).
+binds(P,grid,A) :- iterate(P,A), arg(P,A,int_matrix).
+binds(P,items,A) :- items(P,A).
+binds(P,target,A) :- target(P,A).
+binds(P,terms,A) :- terms(P,M,A).
+size(P,L,tiny) :- items_literal(P,L).
+has_size(P,A) :- size(P,A,S).
+has_size(P,A) :- vsize(P,A,S).
+size_class(P,A,S) :- size(P,A,S).
+size_class(P,A,S) :- vsize(P,A,S).
+size_class(P,A,medium) :- binds(P,R,A), not has_size(P,A).
+error(two_sizes,P) :- size(P,A,S1), size(P,A,S2), S1 != S2.
+
+% ---------- which complexities fit which sizes (tables generated from log10 ceilings: tiny<=1e2, small<=1e3, medium<=1e5, large<=1e6, huge<=1e7, vast<=1e9; budget 1e8 steps)
+any_size(tiny) :- .
+any_size(small) :- .
+any_size(medium) :- .
+any_size(large) :- .
+any_size(huge) :- .
+any_size(vast) :- .
+fits(n,S) :- any_size(S).
+fits("n+out",S) :- any_size(S).
+fits(cells,S) :- any_size(S).
+fits("n log n",S) :- any_size(S).
+fits("n^2",tiny) :- .
+fits("n^2",small) :- .
+single_driver(n) :- .
+single_driver("n+out") :- .
+single_driver(cells) :- .
+single_driver("n log n") :- .
+single_driver("n^2") :- .
+fits2(tiny,tiny) :- .
+fits2(tiny,small) :- .
+fits2(tiny,medium) :- .
+fits2(tiny,large) :- .
+fits2(small,tiny) :- .
+fits2(small,small) :- .
+fits2(small,medium) :- .
+fits2(medium,tiny) :- .
+fits2(medium,small) :- .
+fits2(large,tiny) :- .
+fits3(tiny,tiny,tiny) :- .
+fits3(tiny,tiny,small) :- .
+fits3(tiny,small,tiny) :- .
+fits3(tiny,small,small) :- .
+fits3(small,tiny,tiny) :- .
+fits3(small,tiny,small) :- .
+fits3(small,small,tiny) :- .
+
+% constant-time functions need no driver
+ok(P,F) :- candidate(P,F), complexity(F,"1").
+ok(P,F) :- candidate(P,F), complexity(F,C), single_driver(C), drives(F,R), binds(P,R,A), size_class(P,A,S), fits(C,S).
+ok(P,F) :- candidate(P,F), complexity(F,"n*t"), binds(P,items,A), binds(P,target,B), size_class(P,A,SA), size_class(P,B,SB), fits2(SA,SB).
+ok(P,F) :- candidate(P,F), complexity(F,"n*t*k"), binds(P,items,A), binds(P,target,B), binds(P,terms,K), size_class(P,A,SA), size_class(P,B,SB), size_class(P,K,SK), fits3(SA,SB,SK).
+
+% ---------- choose the fastest feasible function for each role
+rank("1","0") :- .
+lt("0","1") :- .
+lt("0","2") :- .
+lt("0","3") :- .
+lt("0","4") :- .
+lt("0","5") :- .
+rank(n,"1") :- .
+rank(cells,"1") :- .
+rank("n log n","2") :- .
+rank("n*t","3") :- .
+rank("n*t*k","4") :- .
+rank("n^2","5") :- .
+lt("1","2") :- .
+lt("1","3") :- .
+lt("1","4") :- .
+lt("1","5") :- .
+lt("2","3") :- .
+lt("2","4") :- .
+lt("2","5") :- .
+lt("3","4") :- .
+lt("3","5") :- .
+lt("4","5") :- .
+faster(F,G) :- complexity(F,C1), complexity(G,C2), rank(C1,R1), rank(C2,R2), lt(R1,R2).
+beaten(P,F) :- ok(P,F), ok(P,G), role(F,R), role(G,R), F != G, faster(G,F).
+uses(P,F) :- ok(P,F), not beaten(P,F).
+has_ok(P,R) :- ok(P,F), role(F,R).
+why_slow(P,R) :- candidate(P,F), role(F,R), not has_ok(P,R).
+error(too_slow,P) :- why_slow(P,R).
+error(two_choices,P) :- uses(P,F), uses(P,G), role(F,R), role(G,R), F != G.
+error(unknown_algorithm,P) :- candidate(P,F), not algorithm(F).
+
+% ---------- preconditions of library functions versus what the statement guarantees
+guaranteed(P,A,C) :- guarantees(P,A,C).
+guaranteed(P,A,nonnegative) :- guaranteed(P,A,positive).
+guaranteed(P,A,distinct) :- unique(P,A).
+waived(P,F,positive) :- candidate(P,F), use_mode(P,once), binds(P,items,A), guaranteed(P,A,nonnegative).
+waived(P,F,distinct) :- candidate(P,F), use_mode(P,once).
+unmet(P,F,C) :- candidate(P,F), requires(F,R,C), binds(P,R,A), not guaranteed(P,A,C), not waived(P,F,C).
+error(unmet_precondition,P) :- unmet(P,F,C).

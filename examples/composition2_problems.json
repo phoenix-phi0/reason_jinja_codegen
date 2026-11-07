@@ -1,0 +1,860 @@
+[
+ {
+  "id": "top_k_even_sum",
+  "signature": "top_k_even_sum(nums, k)",
+  "statement": "nums is a list of positive integers and k >= 1. Return the sum of the k largest distinct even values of nums (all of them if there are fewer than k distinct even values; 0 if there are none).",
+  "tests": [
+   {
+    "args": [
+     [],
+     1
+    ],
+    "expected": 0
+   },
+   {
+    "args": [
+     [
+      1,
+      3,
+      5
+     ],
+     2
+    ],
+    "expected": 0
+   },
+   {
+    "args": [
+     [
+      2
+     ],
+     3
+    ],
+    "expected": 2
+   },
+   {
+    "args": [
+     [
+      4,
+      4,
+      4
+     ],
+     2
+    ],
+    "expected": 4
+   },
+   {
+    "args": [
+     [
+      2,
+      8,
+      6,
+      4
+     ],
+     2
+    ],
+    "expected": 14
+   },
+   {
+    "args": [
+     [
+      2,
+      8,
+      6,
+      4
+     ],
+     10
+    ],
+    "expected": 20
+   },
+   {
+    "args": [
+     [
+      7,
+      10,
+      10,
+      3,
+      8,
+      2
+     ],
+     3
+    ],
+    "expected": 20
+   },
+   {
+    "args": [
+     [
+      1,
+      2
+     ],
+     1
+    ],
+    "expected": 2
+   },
+   {
+    "args": [
+     [
+      100,
+      98,
+      98,
+      2,
+      1
+     ],
+     2
+    ],
+    "expected": 198
+   },
+   {
+    "args": [
+     [
+      3,
+      28,
+      31,
+      37,
+      1,
+      14,
+      30,
+      32,
+      18,
+      11,
+      3,
+      34,
+      32,
+      21,
+      5,
+      16,
+      24,
+      3,
+      27
+     ],
+     2
+    ],
+    "expected": 66
+   },
+   {
+    "args": [
+     [
+      23,
+      25,
+      27,
+      19,
+      17,
+      30,
+      12,
+      20,
+      24,
+      9,
+      30,
+      16,
+      29,
+      40,
+      25,
+      3,
+      38,
+      1,
+      16,
+      9
+     ],
+     2
+    ],
+    "expected": 78
+   },
+   {
+    "args": [
+     [
+      35,
+      24,
+      16,
+      21,
+      36,
+      29,
+      28,
+      31,
+      5,
+      38
+     ],
+     3
+    ],
+    "expected": 102
+   },
+   {
+    "args": [
+     [
+      11,
+      15,
+      27,
+      16,
+      3,
+      3,
+      32,
+      20,
+      39,
+      5,
+      35,
+      6,
+      10,
+      25,
+      37,
+      24,
+      39
+     ],
+     2
+    ],
+    "expected": 56
+   },
+   {
+    "args": [
+     [
+      7,
+      29,
+      11,
+      13
+     ],
+     3
+    ],
+    "expected": 0
+   },
+   {
+    "args": [
+     [
+      27,
+      29,
+      16,
+      18,
+      10,
+      40,
+      34,
+      12,
+      8,
+      18,
+      30,
+      20,
+      11,
+      12
+     ],
+     2
+    ],
+    "expected": 74
+   }
+  ]
+ },
+ {
+  "id": "digit_pairs_div3",
+  "signature": "digit_pairs_div3(n)",
+  "statement": "Write n! (n >= 0) in decimal. Count the pairs of positions i < j whose two digits add up to a multiple of 3.",
+  "tests": [
+   {
+    "args": [
+     0
+    ],
+    "expected": 0
+   },
+   {
+    "args": [
+     1
+    ],
+    "expected": 0
+   },
+   {
+    "args": [
+     2
+    ],
+    "expected": 0
+   },
+   {
+    "args": [
+     3
+    ],
+    "expected": 0
+   },
+   {
+    "args": [
+     5
+    ],
+    "expected": 1
+   },
+   {
+    "args": [
+     10
+    ],
+    "expected": 6
+   },
+   {
+    "args": [
+     15
+    ],
+    "expected": 32
+   },
+   {
+    "args": [
+     30
+    ],
+    "expected": 172
+   },
+   {
+    "args": [
+     52
+    ],
+    "expected": 832
+   },
+   {
+    "args": [
+     100
+    ],
+    "expected": 4585
+   },
+   {
+    "args": [
+     143
+    ],
+    "expected": 11272
+   }
+  ]
+ },
+ {
+  "id": "change_ways_digit_sum",
+  "signature": "change_ways_digit_sum(coins, t)",
+  "statement": "coins is a list of distinct positive integers (unlimited supply of each), t >= 0. Let w be the number of ways to pay exactly t, where the order of the coins does not matter. Return the sum of the decimal digits of w.",
+  "tests": [
+   {
+    "args": [
+     [
+      1
+     ],
+     0
+    ],
+    "expected": 1
+   },
+   {
+    "args": [
+     [
+      1
+     ],
+     5
+    ],
+    "expected": 1
+   },
+   {
+    "args": [
+     [
+      2
+     ],
+     3
+    ],
+    "expected": 0
+   },
+   {
+    "args": [
+     [
+      1,
+      2,
+      5
+     ],
+     11
+    ],
+    "expected": 2
+   },
+   {
+    "args": [
+     [
+      1,
+      2,
+      5
+     ],
+     100
+    ],
+    "expected": 10
+   },
+   {
+    "args": [
+     [
+      2,
+      5,
+      3,
+      6
+     ],
+     10
+    ],
+    "expected": 5
+   },
+   {
+    "args": [
+     [
+      3
+     ],
+     9
+    ],
+    "expected": 1
+   },
+   {
+    "args": [
+     [
+      7,
+      11
+     ],
+     50
+    ],
+    "expected": 1
+   },
+   {
+    "args": [
+     [
+      1,
+      5,
+      10,
+      25,
+      50
+     ],
+     200
+    ],
+    "expected": 14
+   },
+   {
+    "args": [
+     [
+      4,
+      9
+     ],
+     2
+    ],
+    "expected": 0
+   }
+  ]
+ },
+ {
+  "id": "coins_for_digit_sum",
+  "signature": "coins_for_digit_sum(coins, n)",
+  "statement": "coins is a list of positive integers (unlimited supply of each), n >= 0. Let s be the sum of the decimal digits of n. Return the minimum number of coins that add up to exactly s, or -1 if that is impossible.",
+  "tests": [
+   {
+    "args": [
+     [
+      1
+     ],
+     0
+    ],
+    "expected": 0
+   },
+   {
+    "args": [
+     [
+      2
+     ],
+     7
+    ],
+    "expected": -1
+   },
+   {
+    "args": [
+     [
+      5,
+      2
+     ],
+     129
+    ],
+    "expected": 3
+   },
+   {
+    "args": [
+     [
+      1,
+      3,
+      4
+     ],
+     99
+    ],
+    "expected": 5
+   },
+   {
+    "args": [
+     [
+      7
+     ],
+     25
+    ],
+    "expected": 1
+   },
+   {
+    "args": [
+     [
+      4,
+      6
+     ],
+     11
+    ],
+    "expected": -1
+   },
+   {
+    "args": [
+     [
+      3,
+      5
+     ],
+     6789
+    ],
+    "expected": 6
+   },
+   {
+    "args": [
+     [
+      10,
+      1
+     ],
+     999
+    ],
+    "expected": 9
+   },
+   {
+    "args": [
+     [
+      2,
+      3
+     ],
+     1000000
+    ],
+    "expected": -1
+   },
+   {
+    "args": [
+     [
+      9,
+      8
+     ],
+     55
+    ],
+    "expected": -1
+   }
+  ]
+ },
+ {
+  "id": "longest_letter_run",
+  "signature": "longest_letter_run(s)",
+  "statement": "Ignore every character of s that is not a letter and ignore case. In the remaining sequence of letters, return the length of the longest run of equal adjacent letters (0 if there are no letters).",
+  "tests": [
+   {
+    "args": [
+     ""
+    ],
+    "expected": 0
+   },
+   {
+    "args": [
+     "a"
+    ],
+    "expected": 1
+   },
+   {
+    "args": [
+     "aab"
+    ],
+    "expected": 2
+   },
+   {
+    "args": [
+     "a1a"
+    ],
+    "expected": 2
+   },
+   {
+    "args": [
+     "AaBb"
+    ],
+    "expected": 2
+   },
+   {
+    "args": [
+     "ab ba"
+    ],
+    "expected": 2
+   },
+   {
+    "args": [
+     "Mississippi"
+    ],
+    "expected": 2
+   },
+   {
+    "args": [
+     "x-x-x y"
+    ],
+    "expected": 3
+   },
+   {
+    "args": [
+     "123"
+    ],
+    "expected": 0
+   },
+   {
+    "args": [
+     "hello  wOrld!!"
+    ],
+    "expected": 2
+   },
+   {
+    "args": [
+     "aaa b aaaa"
+    ],
+    "expected": 4
+   },
+   {
+    "args": [
+     "zz9Zz"
+    ],
+    "expected": 4
+   }
+  ]
+ },
+ {
+  "id": "overlap_factorial",
+  "signature": "overlap_factorial(intervals)",
+  "statement": "intervals is a list of [start, end) integer pairs (an interval with end <= start is empty and counts nowhere). Let m be the largest number of intervals that cover a common point. Return m! (0! = 1).",
+  "tests": [
+   {
+    "args": [
+     []
+    ],
+    "expected": 1
+   },
+   {
+    "args": [
+     [
+      [
+       1,
+       1
+      ]
+     ]
+    ],
+    "expected": 1
+   },
+   {
+    "args": [
+     [
+      [
+       0,
+       3
+      ]
+     ]
+    ],
+    "expected": 1
+   },
+   {
+    "args": [
+     [
+      [
+       0,
+       3
+      ],
+      [
+       3,
+       5
+      ]
+     ]
+    ],
+    "expected": 1
+   },
+   {
+    "args": [
+     [
+      [
+       0,
+       3
+      ],
+      [
+       2,
+       5
+      ]
+     ]
+    ],
+    "expected": 2
+   },
+   {
+    "args": [
+     [
+      [
+       0,
+       5
+      ],
+      [
+       1,
+       4
+      ],
+      [
+       2,
+       3
+      ]
+     ]
+    ],
+    "expected": 6
+   },
+   {
+    "args": [
+     [
+      [
+       5,
+       2
+      ],
+      [
+       1,
+       2
+      ]
+     ]
+    ],
+    "expected": 1
+   },
+   {
+    "args": [
+     [
+      [
+       0,
+       10
+      ],
+      [
+       0,
+       10
+      ],
+      [
+       0,
+       10
+      ],
+      [
+       9,
+       11
+      ]
+     ]
+    ],
+    "expected": 24
+   },
+   {
+    "args": [
+     [
+      [
+       1,
+       4
+      ],
+      [
+       2,
+       6
+      ],
+      [
+       3,
+       7
+      ],
+      [
+       10,
+       12
+      ],
+      [
+       11,
+       13
+      ]
+     ]
+    ],
+    "expected": 6
+   },
+   {
+    "args": [
+     [
+      [
+       24,
+       28
+      ],
+      [
+       10,
+       15
+      ],
+      [
+       7,
+       6
+      ],
+      [
+       17,
+       16
+      ],
+      [
+       10,
+       14
+      ],
+      [
+       7,
+       7
+      ],
+      [
+       8,
+       14
+      ],
+      [
+       12,
+       20
+      ]
+     ]
+    ],
+    "expected": 24
+   },
+   {
+    "args": [
+     [
+      [
+       12,
+       18
+      ],
+      [
+       21,
+       23
+      ],
+      [
+       23,
+       30
+      ]
+     ]
+    ],
+    "expected": 1
+   },
+   {
+    "args": [
+     [
+      [
+       16,
+       22
+      ],
+      [
+       19,
+       25
+      ],
+      [
+       2,
+       3
+      ],
+      [
+       15,
+       24
+      ],
+      [
+       14,
+       19
+      ]
+     ]
+    ],
+    "expected": 6
+   },
+   {
+    "args": [
+     [
+      [
+       13,
+       20
+      ],
+      [
+       18,
+       22
+      ],
+      [
+       17,
+       22
+      ]
+     ]
+    ],
+    "expected": 6
+   }
+  ]
+ }
+]

@@ -1,0 +1,31 @@
+{% raw %}
+def solve(N, m):
+    if N <= 0:
+        return 0
+    digits = list(map(int, str(N)))
+    n = len(digits)
+    # ways[k][r]: number of digit strings of length k with digit sum % m == r
+    ways = [[0] * m for _ in range(n + 1)]
+    ways[0][0] = 1
+    for k in range(1, n + 1):
+        prev = ways[k - 1]
+        cur = ways[k]
+        for r in range(m):
+            p = prev[r]
+            if p:
+                for d in range(10):
+                    cur[(r + d) % m] += p
+    total = 0
+    prefix = 0
+    for i, dg in enumerate(digits):
+        rem = n - i - 1
+        w = ways[rem]
+        for d in range(dg):
+            # need (prefix + d + s) % m == 0
+            total += w[(-(prefix + d)) % m]
+        prefix += dg
+    if prefix % m == 0:
+        total += 1  # N itself
+    # total counts x in [0, N] with digit sum % m == 0, including 0
+    return total - 1
+{% endraw %}

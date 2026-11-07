@@ -1,0 +1,15 @@
+{% raw %}
+def solve(s):
+    last = {}
+    start = 0
+    best = 0
+    for i, c in enumerate(s):
+        j = last.get(c, -1)
+        if j >= start:
+            start = j + 1
+        last[c] = i
+        length = i - start + 1
+        if length > best:
+            best = length
+    return best
+{% endraw %}

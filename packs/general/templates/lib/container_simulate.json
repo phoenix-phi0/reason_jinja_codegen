@@ -1,0 +1,25 @@
+{
+ "doc": "Simulate a FIFO queue or LIFO stack over operation codes (1 push value, 0 pop, 2 peek); pops/peeks on an empty container give a given empty value. Output: list of returned values, remaining contents, remaining size, or number of empty misses. One pass, O(n).",
+ "complexity": "n",
+ "generator": [
+  {"kind": "int_list", "lo": 0, "hi": 2, "distinct": false, "sorted": false},
+  {"kind": "int_list", "lo": -100, "hi": 100, "distinct": false, "sorted": false},
+  {"kind": "value", "value": "fifo"},
+  {"kind": "value", "value": "results"},
+  {"kind": "value", "value": null}
+ ],
+ "sizes": [1000, 100000],
+ "tests": [
+  {"args": [[], [], "fifo", "results", null], "expected": []},
+  {"args": [[1, 0], [1, 0], "fifo", "results", null], "expected": [1]},
+  {"args": [[0], [0], "fifo", "results", null], "expected": [null]},
+  {"args": [[1, 1, 0, 0, 0], [1, 2, 0, 0, 0], "fifo", "results", null], "expected": [1, 2, null]},
+  {"args": [[0, 1, 0], [0, 5, 0], "fifo", "results", null], "expected": [null, 5]},
+  {"args": [[1, 1, 0, 0], [1, 2, 0, 0], "lifo", "results", null], "expected": [2, 1]},
+  {"args": [[1, 1, 2, 0, 2], [7, 8, 0, 0, 0], "fifo", "results", null], "expected": [7, 7, 8]},
+  {"args": [[1, 1, 1, 0], [1, 2, 3, 0], "fifo", "remaining", null], "expected": [2, 3]},
+  {"args": [[0, 2, 1, 0], [0, 0, 4, 0], "fifo", "empty_count", null], "expected": 2},
+  {"args": [[1, 1, 0], [1, 2, 0], "lifo", "size", null], "expected": 1},
+  {"args": [[0], [0], "fifo", "results", -1], "expected": [-1]}
+ ]
+}

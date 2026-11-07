@@ -1,0 +1,13 @@
+{%- from 'composition.j2' import source_expr with context -%}
+{%- set outs = relations.rows('run_output', key) -%}
+{%- set out = outs[0][-1] if outs else 'encoded' -%}
+{%- set fmts = relations.rows('run_format', key) -%}
+{%- set omit = relations.has('run_one', key, 'omit') -%}
+{%- set OUTFORM = {'pairs': 'pairs', 'run_count': 'run_count', 'longest_run': 'longest'} -%}
+{%- set form = OUTFORM[out] if out in OUTFORM else (fmts[0][-1] if fmts else 'char_count') -%}
+def {{ fname|default('solve') }}({{ (fparams|default(params))|join(', ') }}):
+{% if out == 'decoded' %}
+    return run_length_decode({{ source_expr(key) }}, {{ (fmts[0][-1] if fmts else 'char_count')|pyrepr }})
+{% else %}
+    return run_length_encode({{ source_expr(key) }}, {{ form|pyrepr }}, {{ omit }})
+{% endif %}

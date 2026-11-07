@@ -1,0 +1,45 @@
+{%- set q = relations.one('ask', key) -%}
+{%- set rg = relations.rows('items_range', key)[0] -%}
+{%- set mod = relations.rows('modulo', key) -%}
+{%- set modv = (mod[0][1]|int) if mod else none -%}
+{%- macro num(v) -%}{{ v if relations.has('arg', key, v, 'int') else (v|int) }}{%- endmacro -%}
+def solve({{ params|join(', ') }}):
+    target = {{ relations.one('target', key) }}
+    lo = {{ num(rg[1]) }}
+    hi = {{ num(rg[2]) }}
+    if lo < 1:
+        raise ValueError('smallest part must be positive')
+    parts = list(range(lo, hi + 1))
+    if target < 0:
+{% if q == 'min_count' %}
+        return {{ 'None' if relations.one('no_answer', key) == 'none' else (relations.one('no_answer', key)|int) }}
+{% elif q == 'count_ways' %}
+        return 0
+{% else %}
+        return False
+{% endif %}
+{% if q == 'count_ways' %}
+    ways = [0] * (target + 1)
+    ways[0] = 1
+    for t in range(1, target + 1):
+        for p in parts:
+            if p <= t:
+                ways[t] += ways[t - p]
+{% if modv %}
+    return ways[target] % {{ modv }}
+{% else %}
+    return ways[target]
+{% endif %}
+{% else %}
+    best = [None] * (target + 1)
+    best[0] = 0
+    for t in range(1, target + 1):
+        for p in parts:
+            if p <= t and best[t - p] is not None and (best[t] is None or best[t - p] + 1 < best[t]):
+                best[t] = best[t - p] + 1
+{% if q == 'min_count' %}
+    return {{ 'None' if relations.one('no_answer', key) == 'none' else (relations.one('no_answer', key)|int) }} if best[target] is None else best[target]
+{% else %}
+    return best[target] is not None
+{% endif %}
+{% endif %}
