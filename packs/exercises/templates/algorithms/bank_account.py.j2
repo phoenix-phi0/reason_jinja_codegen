@@ -1,0 +1,20 @@
+from decimal import Decimal
+
+class Account:
+    def __init__(self):
+        self.balance = Decimal(0)
+
+    def _amount(self, value):
+        amount = Decimal(str(value))
+        if not amount.is_finite() or amount <= 0:
+            raise ValueError('finite positive amount required')
+        return amount
+
+    def deposit(self, value):
+        self.balance += self._amount(value)
+
+    def withdraw(self, value):
+        amount = self._amount(value)
+        if amount > self.balance:
+            raise ValueError('insufficient funds')
+        self.balance -= amount

@@ -1,0 +1,34 @@
+{%- set walk = relations.rows('walk', key)|map('last')|list -%}
+{%- set eight = relations.one('neighbours', key) == '8' -%}
+{%- set s = relations.rows('start_at', key)[0] -%}
+{%- set t = relations.rows('goal_at', key)[0] -%}
+{%- macro locate(kind, val) -%}
+{%- if kind == 'char' -%}first({{ val|pyrepr }})
+{%- elif val == 'top_left' -%}((0, 0) if grid and grid[0] else None)
+{%- else -%}((len(grid) - 1, len(grid[0]) - 1) if grid and grid[0] else None)
+{%- endif -%}
+{%- endmacro -%}
+def solve({{ params|join(', ') }}):
+    grid = {{ relations.one('grid', key) }}
+    missing = {{ value(relations.one('no_answer', key)) }}
+
+    def first(ch):
+        for r in range(len(grid)):
+            for c in range(len(grid[r])):
+                if grid[r][c] == ch:
+                    return (r, c)
+        return None
+
+    start, goal = {{ locate(s[1], s[2]) }}, {{ locate(t[1], t[2]) }}
+    open_cells = {(r, c) for r in range(len(grid)) for c in range(len(grid[r])) if grid[r][c] in {{ walk|pyrepr }}}
+    if start not in open_cells or goal not in open_cells:
+        return missing
+    dist = {start: 0}
+    for _ in range(len(open_cells)):  # Bellman-Ford style relaxation
+        for (r, c) in list(dist):
+            for dr in (-1, 0, 1):
+                for dc in (-1, 0, 1):
+                    n = (r + dr, c + dc)
+                    if (dr or dc) and ({{ eight }} or dr == 0 or dc == 0) and n in open_cells and dist.get(n, 10 ** 9) > dist[(r, c)] + 1:
+                        dist[n] = dist[(r, c)] + 1
+    return dist.get(goal, missing)

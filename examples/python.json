@@ -1,0 +1,21 @@
+{
+  "facts": {
+    "module": [["calculator", "calculator.py"], ["worker", "worker.py"]],
+    "package": [["api", "__init__.py"]],
+    "function_mode": [["worker", "double", "async"]]
+  },
+  "data": {
+    "calculator": {
+      "docstring": "Functions and classes generated from a Python module specification.",
+      "imports": ["from typing import Iterable"],
+      "constants": {"DEFAULT_FACTOR": 2},
+      "functions": [{"name": "total", "parameters": ["values: Iterable[int]"], "returns": "int", "body": "return sum(values)"}],
+      "classes": [{"name": "Multiplier", "methods": [
+        {"name": "__init__", "parameters": ["self", "factor: int = DEFAULT_FACTOR"], "body": "self.factor = factor"},
+        {"name": "apply", "parameters": ["self", "value: int"], "returns": "int", "body": "return value * self.factor"}
+      ]}]
+    },
+    "worker": {"functions": [{"name": "double", "parameters": ["value: int"], "returns": "int", "body": "return value * 2"}]},
+    "api": {"imports": ["from .calculator import Multiplier, total", "from .worker import double"], "exports": ["Multiplier", "total", "double"]}
+  }
+}

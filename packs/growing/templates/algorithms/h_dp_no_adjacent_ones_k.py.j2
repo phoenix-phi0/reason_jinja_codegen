@@ -1,0 +1,24 @@
+{% raw %}
+MOD = 1000000007
+
+
+def _pow(a, e):
+    return pow(a, e, MOD)
+
+
+def solve(n, k):
+    # Number of ways = C(n-k+1, k)
+    if n < 0 or k < 0:
+        return 0
+    if k > n:
+        return 0
+    m = n - k + 1
+    if k > m:
+        return 0
+    num = 1
+    den = 1
+    for i in range(k):
+        num = num * ((m - i) % MOD) % MOD
+        den = den * (i + 1) % MOD
+    return num * _pow(den, MOD - 2) % MOD
+{% endraw %}

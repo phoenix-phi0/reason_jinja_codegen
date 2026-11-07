@@ -1,0 +1,5 @@
+{#- Slow, obviously correct reference for differential testing (general_grow.differential). Same facts as solution.py.j2. -#}
+{%- set schema = relations.one('schema', key) -%}
+{%- set params = item.params -%}
+{%- macro value(v) -%}{{ 'None' if v == 'none' else (v|int) }}{%- endmacro -%}
+{% include 'reference/' ~ schema ~ '.py.j2' %}

@@ -1,0 +1,348 @@
+% Rules added by growth. Style: schema selection, helper is_<schema> (only where no learned answer_type exists), then error(<pred>_without_<schema or ask>,P) / error(two_<pred>,P).
+
+% ---------- schema selection
+schema(P,interval_scan) :- iterate(P,A), arg(P,A,interval_list), ask(P,max_overlap).
+schema(P,interval_scan) :- iterate(P,A), arg(P,A,interval_list), ask(P,merge_intervals).
+schema(P,interval_scan) :- iterate(P,A), arg(P,A,interval_list), ask(P,overlap_pairs).
+schema(P,interval_scan) :- iterate(P,A), arg(P,A,interval_list), ask(P,covered_length).
+schema(P,pair_count) :- iterate(P,A), arg(P,A,int_list), ask(P,count_pairs).
+schema(P,bracket_match) :- iterate(P,A), arg(P,A,string), ask(P,balanced_brackets).
+schema(P,seq_rank) :- iterate(P,A), select_rank(P,O,K).
+schema(P,run_encode) :- iterate(P,A), ask(P,run_length).
+schema(P,seq_reduce) :- iterate(P,A), fold(P,O).
+schema(P,matrix_diagonals) :- iterate(P,A), arg(P,A,int_matrix), ask(P,diagonal_sums).
+schema(P,matrix_transform) :- iterate(P,A), arg(P,A,int_matrix), ask(P,matrix_transform).
+schema(P,op_simulation) :- iterate(P,A), arg(P,A,op_list), ask(P,simulate_ops).
+schema(P,pair_extreme) :- iterate(P,A), arg(P,A,int_list), ask(P,best_pair).
+schema(P,palindrome_check) :- iterate(P,A), ask(P,palindrome_check).
+
+% ---------- helpers
+is_interval_scan(P) :- schema(P,interval_scan).
+is_max_overlap(P) :- is_interval_scan(P), ask(P,max_overlap).
+is_merge_intervals(P) :- is_interval_scan(P), ask(P,merge_intervals).
+is_overlap_pairs(P) :- is_interval_scan(P), ask(P,overlap_pairs).
+is_covered_length(P) :- is_interval_scan(P), ask(P,covered_length).
+is_pair_count(P) :- schema(P,pair_count).
+is_knapsack(P) :- schema(P,knapsack).
+is_seq_fold(P) :- schema(P,seq_fold).
+is_seq_rank(P) :- schema(P,seq_rank).
+is_seq_reduce(P) :- schema(P,seq_reduce).
+is_bracket_match(P) :- schema(P,bracket_match).
+is_run_encode(P) :- schema(P,run_encode).
+is_matrix_diagonals(P) :- schema(P,matrix_diagonals).
+is_matrix_transform(P) :- schema(P,matrix_transform).
+is_op_simulation(P) :- schema(P,op_simulation).
+is_pair_extreme(P) :- schema(P,pair_extreme).
+is_palindrome_check(P) :- schema(P,palindrome_check).
+has_pair_test(P) :- pair_test(P,O,M,R).
+has_pair_bound(P) :- pair_bound(P,O,C,N).
+has_pair_value(P) :- pair_value(P,O,W).
+has_bracket_pair(P) :- bracket_pair(P,O,C).
+has_diagonal_op(P) :- diagonal_op(P,O).
+has_diagonal_center(P) :- diagonal_center(P,M).
+has_matrix_op(P) :- matrix_op(P,F).
+has_container(P) :- container(P,K).
+has_sim_output(P) :- sim_output(P,F).
+
+% ---------- shared check: aggregate belongs to seq_fold only (other schemas that iterate are caught as ambiguous_schema)
+error(aggregate_without_seq_fold,P) :- aggregate(P,G), not is_seq_fold(P).
+
+% ---------- intervals
+error(interval_ends_without_interval_scan,P) :- interval_ends(P,M), not is_interval_scan(P).
+error(interval_gap_without_interval_scan,P) :- interval_gap(P,N), not is_interval_scan(P).
+error(at_least_without_max_overlap,P) :- at_least(P,N), not is_max_overlap(P).
+error(interval_output_without_merge_intervals,P) :- interval_output(P,F), not is_merge_intervals(P).
+error(pair_relation_without_overlap_pairs,P) :- pair_relation(P,R), not is_overlap_pairs(P).
+error(min_depth_without_covered_length,P) :- min_depth(P,N), not is_covered_length(P).
+error(max_depth_without_covered_length,P) :- max_depth(P,N), not is_covered_length(P).
+error(two_interval_ends,P) :- interval_ends(P,A), interval_ends(P,B), A != B.
+error(two_interval_gap,P) :- interval_gap(P,A), interval_gap(P,B), A != B.
+error(two_at_least,P) :- at_least(P,A), at_least(P,B), A != B.
+error(two_interval_output,P) :- interval_output(P,A), interval_output(P,B), A != B.
+error(two_pair_relation,P) :- pair_relation(P,A), pair_relation(P,B), A != B.
+error(two_min_depth,P) :- min_depth(P,A), min_depth(P,B), A != B.
+error(two_max_depth,P) :- max_depth(P,A), max_depth(P,B), A != B.
+
+% ---------- knapsack term-count bound
+error(terms_without_knapsack,P) :- terms(P,M,A), not is_knapsack(P).
+error(terms_param_not_int,P) :- terms(P,M,A), not arg(P,A,int).
+error(two_terms,P) :- terms(P,M,A), terms(P,N,B), A != B.
+error(two_terms,P) :- terms(P,M,A), terms(P,N,B), M != N.
+
+% ---------- knapsack constant item set
+% items_literal(P,L) states the item list as a literal; it feeds the same items relation the knapsack schema uses.
+items(P,L) :- items_literal(P,L).
+error(two_items,P) :- items(P,A), items(P,B), A != B.
+error(items_literal_without_knapsack,P) :- items_literal(P,L), not is_knapsack(P).
+
+% ---------- consecutive item range lo..hi (e.g. jumps of 1..k steps)
+schema(P,range_steps) :- items_range(P,L,H), target(P,T), ask(P,count_ways).
+schema(P,range_steps) :- items_range(P,L,H), target(P,T), ask(P,min_count).
+schema(P,range_steps) :- items_range(P,L,H), target(P,T), ask(P,feasible).
+candidate(P,range_steps) :- schema(P,range_steps).
+answer_type(P,int) :- schema(P,range_steps), ask(P,count_ways).
+answer_type(P,int) :- schema(P,range_steps), ask(P,min_count).
+answer_type(P,bool) :- schema(P,range_steps), ask(P,feasible).
+no_answer(P,"-1") :- schema(P,range_steps), ask(P,min_count), not has_unreachable(P).
+error(items_range_without_range_steps,P) :- items_range(P,L,H), not schema(P,range_steps).
+error(items_range_with_items,P) :- items_range(P,L,H), items(P,A).
+error(two_items_range,P) :- items_range(P,L1,H1), items_range(P,L2,H2), L1 != L2.
+error(two_items_range,P) :- items_range(P,L1,H1), items_range(P,L2,H2), H1 != H2.
+error(items_range_param_not_int,P) :- items_range(P,L,H), arg(P,L,K), K != int.
+error(items_range_param_not_int,P) :- items_range(P,L,H), arg(P,H,K), K != int.
+error(items_range_lo_zero,P) :- items_range(P,"0",H).
+error(range_count_needs_order,P) :- schema(P,range_steps), ask(P,count_ways), not order(P,matters).
+error(range_steps_use_once,P) :- schema(P,range_steps), use(P,once).
+
+% ---------- pair counting
+error(pair_test_without_pair_count,P) :- pair_test(P,O,M,R), not is_pair_count(P).
+error(pair_bound_without_pair_count,P) :- pair_bound(P,O,C,N), not is_pair_count(P).
+error(pair_output_without_pair_count,P) :- pair_output(P,F), not is_pair_count(P), not is_overlap_pairs(P).
+error(missing_pair_test,P) :- is_pair_count(P), not has_pair_test(P), not has_pair_bound(P).
+error(two_pair_test,P) :- pair_test(P,O1,M1,R1), pair_test(P,O2,M2,R2), O1 != O2.
+error(two_pair_test,P) :- pair_test(P,O1,M1,R1), pair_test(P,O2,M2,R2), M1 != M2.
+error(two_pair_test,P) :- pair_test(P,O1,M1,R1), pair_test(P,O2,M2,R2), R1 != R2.
+error(two_pair_bound,P) :- pair_bound(P,O1,C1,N1), pair_bound(P,O2,C2,N2), O1 != O2.
+error(two_pair_bound,P) :- pair_bound(P,O1,C1,N1), pair_bound(P,O2,C2,N2), C1 != C2.
+error(two_pair_bound,P) :- pair_bound(P,O1,C1,N1), pair_bound(P,O2,C2,N2), N1 != N2.
+error(two_pair_output,P) :- pair_output(P,A), pair_output(P,B), A != B.
+error(pair_zero_modulus,P) :- pair_test(P,O,"0",R).
+% a parameter used as the modulus must be declared as an int argument
+error(pair_test_param_not_int,P) :- pair_test(P,O,M,R), arg(P,M,K), K != int.
+
+% ---------- sequence element transforms
+error(bound_without_seq_fold,P) :- bound(P,O,N), not is_seq_fold(P), not is_seq_rank(P), not is_seq_reduce(P), not is_palindrome_check(P).
+error(bound_on_characters,P) :- bound(P,O,N), iterate(P,A), arg(P,A,string).
+error(floordiv_without_seq_fold,P) :- floordiv(P,N), not is_seq_fold(P), not is_seq_rank(P), not is_seq_reduce(P), not is_palindrome_check(P).
+error(floordiv_on_characters,P) :- floordiv(P,N), iterate(P,A), arg(P,A,string).
+error(two_floordiv,P) :- floordiv(P,A), floordiv(P,B), A != B.
+error(floordiv_zero,P) :- floordiv(P,"0").
+
+% ---------- digit-sum element filters (only seq_fold supports them; rank, reduce and palindrome are rejected here too)
+error(digit_sum_test_without_seq_fold,P) :- digit_sum_test(P,M,R), not is_seq_fold(P).
+error(digit_sum_test_on_characters,P) :- digit_sum_test(P,M,R), iterate(P,A), arg(P,A,string).
+error(digit_sum_zero_modulus,P) :- digit_sum_test(P,"0",R).
+error(digit_sum_bound_without_seq_fold,P) :- digit_sum_bound(P,O,N), not is_seq_fold(P).
+error(digit_sum_bound_on_characters,P) :- digit_sum_bound(P,O,N), iterate(P,A), arg(P,A,string).
+
+% ---------- bracket matching
+error(bracket_pair_without_bracket_match,P) :- bracket_pair(P,O,C), not is_bracket_match(P).
+error(bracket_output_without_bracket_match,P) :- bracket_output(P,F), not is_bracket_match(P).
+error(missing_bracket_pair,P) :- is_bracket_match(P), not has_bracket_pair(P).
+error(two_bracket_output,P) :- bracket_output(P,A), bracket_output(P,B), A != B.
+error(bracket_open_equals_close,P) :- bracket_pair(P,X,X).
+error(bracket_char_reused,P) :- bracket_pair(P,X,C1), bracket_pair(P,O2,X).
+error(bracket_char_reused,P) :- bracket_pair(P,O,C1), bracket_pair(P,O,C2), C1 != C2.
+error(bracket_char_reused,P) :- bracket_pair(P,O1,C), bracket_pair(P,O2,C), O1 != O2.
+
+% ---------- k-th largest / smallest selection
+% the answer when fewer than k elements remain is if_empty, which is therefore required
+needs_empty(P) :- is_seq_rank(P).
+error(select_rank_without_iterate,P) :- select_rank(P,O,K), not is_seq_rank(P).
+error(two_select_rank,P) :- select_rank(P,O1,K1), select_rank(P,O2,K2), O1 != O2.
+error(two_select_rank,P) :- select_rank(P,O1,K1), select_rank(P,O2,K2), K1 != K2.
+error(select_rank_k_param_not_int,P) :- select_rank(P,O,K), arg(P,K,T), T != int.
+
+% ---------- run-length encoding of maximal runs
+error(run_format_without_run_encode,P) :- run_format(P,F), not is_run_encode(P).
+error(run_one_without_run_encode,P) :- run_one(P,M), not is_run_encode(P).
+error(run_output_without_run_encode,P) :- run_output(P,F), not is_run_encode(P).
+error(two_run_format,P) :- run_format(P,A), run_format(P,B), A != B.
+error(two_run_one,P) :- run_one(P,A), run_one(P,B), A != B.
+error(two_run_output,P) :- run_output(P,A), run_output(P,B), A != B.
+
+% ---------- integer reduction (gcd, lcm, bitwise and/or/xor) of the kept elements
+% the answer for an empty selection is if_empty, which is therefore required
+needs_empty(P) :- is_seq_reduce(P).
+error(fold_without_iterate,P) :- fold(P,O), not is_seq_reduce(P).
+error(two_fold,P) :- fold(P,A), fold(P,B), A != B.
+error(seq_reduce_on_characters,P) :- is_seq_reduce(P), iterate(P,A), arg(P,A,string).
+
+% ---------- matrix diagonals (main / anti-diagonal sums)
+center_mode(P,M) :- diagonal_center(P,M).
+center_mode(P,both) :- is_matrix_diagonals(P), not has_diagonal_center(P).
+error(diagonal_op_without_matrix_diagonals,P) :- diagonal_op(P,O), not is_matrix_diagonals(P).
+error(diagonal_center_without_matrix_diagonals,P) :- diagonal_center(P,M), not is_matrix_diagonals(P).
+error(missing_diagonal_op,P) :- is_matrix_diagonals(P), not has_diagonal_op(P).
+error(two_diagonal_op,P) :- diagonal_op(P,A), diagonal_op(P,B), A != B.
+error(two_diagonal_center,P) :- diagonal_center(P,A), diagonal_center(P,B), A != B.
+
+% ---------- matrix reorientation (transpose, rotations, flips)
+error(matrix_op_without_matrix_transform,P) :- matrix_op(P,F), not is_matrix_transform(P).
+error(missing_matrix_op,P) :- is_matrix_transform(P), not has_matrix_op(P).
+error(two_matrix_op,P) :- matrix_op(P,A), matrix_op(P,B), A != B.
+
+% ---------- queue / stack simulation over an operation list
+container_mode(P,K) :- container(P,K).
+container_mode(P,queue) :- is_op_simulation(P), not has_container(P).
+sim_form(P,F) :- sim_output(P,F).
+sim_form(P,results) :- is_op_simulation(P), not has_sim_output(P).
+empty_answer(P,V) :- if_empty(P,V), is_op_simulation(P).
+empty_answer(P,none) :- is_op_simulation(P), not has_empty(P).
+error(container_without_op_simulation,P) :- container(P,K), not is_op_simulation(P).
+error(sim_output_without_op_simulation,P) :- sim_output(P,F), not is_op_simulation(P).
+error(two_container,P) :- container(P,A), container(P,B), A != B.
+error(two_sim_output,P) :- sim_output(P,A), sim_output(P,B), A != B.
+error(two_if_empty_in_simulation,P) :- is_op_simulation(P), if_empty(P,A), if_empty(P,B), A != B.
+
+% ---------- best pair (largest / smallest pair expression over positions i < j)
+% the answer for fewer than two elements is if_empty, which is therefore required
+needs_empty(P) :- is_pair_extreme(P).
+error(pair_value_without_pair_extreme,P) :- pair_value(P,O,W), not is_pair_extreme(P).
+error(result_floor_without_pair_extreme,P) :- result_floor(P,N), not is_pair_extreme(P).
+error(result_cap_without_pair_extreme,P) :- result_cap(P,N), not is_pair_extreme(P).
+error(missing_pair_value,P) :- is_pair_extreme(P), not has_pair_value(P).
+error(two_pair_value,P) :- pair_value(P,O1,W1), pair_value(P,O2,W2), O1 != O2.
+error(two_pair_value,P) :- pair_value(P,O1,W1), pair_value(P,O2,W2), W1 != W2.
+error(two_result_floor,P) :- result_floor(P,A), result_floor(P,B), A != B.
+error(two_result_cap,P) :- result_cap(P,A), result_cap(P,B), A != B.
+error(result_floor_param_not_int,P) :- result_floor(P,N), arg(P,N,K), K != int.
+error(result_cap_param_not_int,P) :- result_cap(P,N), arg(P,N,K), K != int.
+
+% ---------- palindrome check of the kept, mapped elements (string or int list)
+error(palindrome_output_without_palindrome_check,P) :- palindrome_output(P,F), not is_palindrome_check(P).
+error(palindrome_tolerance_without_palindrome_check,P) :- palindrome_tolerance(P,N), not is_palindrome_check(P).
+error(two_palindrome_output,P) :- palindrome_output(P,A), palindrome_output(P,B), A != B.
+error(two_palindrome_tolerance,P) :- palindrome_tolerance(P,A), palindrome_tolerance(P,B), A != B.
+error(palindrome_tolerance_param_not_int,P) :- palindrome_tolerance(P,N), arg(P,N,K), K != int.
+error(palindrome_check_with_distinct,P) :- is_palindrome_check(P), distinct(P,S).
+
+% ---------- calendar date arithmetic (day offset from a constant origin, weekday, day of year)
+schema(P,date_calc) :- ask(P,date_offset), date_fields(P,Y,M,D).
+has_date_fields(P) :- date_fields(P,Y,M,D).
+has_date_origin(P) :- date_origin(P,Y,M,D).
+has_date_output(P) :- date_output(P,F).
+date_form(P,F) :- date_output(P,F).
+date_form(P,days) :- schema(P,date_calc), not has_date_output(P).
+needs_date_origin(P) :- date_form(P,days).
+needs_date_origin(P) :- date_form(P,abs_days).
+answer_type(P,int) :- schema(P,date_calc).
+error(missing_date_fields,P) :- ask(P,date_offset), not has_date_fields(P).
+error(date_fields_without_date_calc,P) :- date_fields(P,Y,M,D), not schema(P,date_calc).
+error(date_origin_without_date_calc,P) :- date_origin(P,Y,M,D), not schema(P,date_calc).
+error(date_output_without_date_calc,P) :- date_output(P,F), not schema(P,date_calc).
+error(missing_date_origin,P) :- schema(P,date_calc), needs_date_origin(P), not has_date_origin(P).
+error(two_date_fields,P) :- date_fields(P,Y1,M1,D1), date_fields(P,Y2,M2,D2), Y1 != Y2.
+error(two_date_fields,P) :- date_fields(P,Y1,M1,D1), date_fields(P,Y2,M2,D2), M1 != M2.
+error(two_date_fields,P) :- date_fields(P,Y1,M1,D1), date_fields(P,Y2,M2,D2), D1 != D2.
+error(two_date_origin,P) :- date_origin(P,Y1,M1,D1), date_origin(P,Y2,M2,D2), Y1 != Y2.
+error(two_date_origin,P) :- date_origin(P,Y1,M1,D1), date_origin(P,Y2,M2,D2), M1 != M2.
+error(two_date_origin,P) :- date_origin(P,Y1,M1,D1), date_origin(P,Y2,M2,D2), D1 != D2.
+error(two_date_output,P) :- date_output(P,A), date_output(P,B), A != B.
+error(date_field_param_not_int,P) :- date_fields(P,Y,M,D), arg(P,Y,K), K != int.
+error(date_field_param_not_int,P) :- date_fields(P,Y,M,D), arg(P,M,K), K != int.
+error(date_field_param_not_int,P) :- date_fields(P,Y,M,D), arg(P,D,K), K != int.
+
+% ---------- count / sum of the integers in a range selected by a divisibility rule list
+schema(P,range_count) :- ask(P,count_in_range).
+has_range_to(P) :- range_to(P,N).
+answer_type(P,int) :- schema(P,range_count).
+error(missing_range_to,P) :- schema(P,range_count), not has_range_to(P).
+error(range_to_without_range_count,P) :- range_to(P,N), not schema(P,range_count).
+error(range_from_without_range_count,P) :- range_from(P,N), not schema(P,range_count).
+error(range_rule_without_range_count,P) :- range_rule(P,R,D,V), not schema(P,range_count).
+error(range_default_without_range_count,P) :- range_default(P,V), not schema(P,range_count).
+error(range_output_without_range_count,P) :- range_output(P,F), not schema(P,range_count).
+error(two_range_to,P) :- range_to(P,A), range_to(P,B), A != B.
+error(two_range_from,P) :- range_from(P,A), range_from(P,B), A != B.
+error(two_range_default,P) :- range_default(P,A), range_default(P,B), A != B.
+error(two_range_output,P) :- range_output(P,A), range_output(P,B), A != B.
+error(two_range_rule_rank,P) :- range_rule(P,R,D1,V1), range_rule(P,R,D2,V2), D1 != D2.
+error(two_range_rule_rank,P) :- range_rule(P,R,D1,V1), range_rule(P,R,D2,V2), V1 != V2.
+error(range_rule_zero_divisor,P) :- range_rule(P,R,"0",V).
+error(range_to_param_not_int,P) :- range_to(P,N), arg(P,N,K), K != int.
+error(range_from_param_not_int,P) :- range_from(P,N), arg(P,N,K), K != int.
+error(range_rule_param_not_int,P) :- range_rule(P,R,D,V), arg(P,D,K), K != int.
+error(range_count_with_iterate,P) :- schema(P,range_count), iterate(P,A).
+
+% ---------- naming-style conversion of a string (snake_case, kebab-case, camelCase, PascalCase, ...)
+schema(P,case_convert) :- iterate(P,A), arg(P,A,string), ask(P,convert_case).
+has_case_from(P) :- case_from(P,S).
+has_case_to(P) :- case_to(P,S).
+case_source(P,S) :- case_from(P,S), schema(P,case_convert).
+case_source(P,snake) :- schema(P,case_convert), not has_case_from(P).
+answer_type(P,string) :- schema(P,case_convert).
+error(missing_case_to,P) :- schema(P,case_convert), not has_case_to(P).
+error(case_from_without_case_convert,P) :- case_from(P,S), not schema(P,case_convert).
+error(case_to_without_case_convert,P) :- case_to(P,S), not schema(P,case_convert).
+error(two_case_from,P) :- case_from(P,A), case_from(P,B), A != B.
+error(two_case_to,P) :- case_to(P,A), case_to(P,B), A != B.
+
+% ---------- character shift (Caesar cipher) of a string: letters or digits rotate by a constant or parameter amount
+schema(P,char_shift) :- iterate(P,A), arg(P,A,string), ask(P,shift_letters).
+has_shift_by(P) :- shift_by(P,N).
+has_shift_set(P) :- shift_set(P,K).
+has_shift_direction(P) :- shift_direction(P,D).
+shift_kind(P,K) :- shift_set(P,K), schema(P,char_shift).
+shift_kind(P,lower) :- schema(P,char_shift), not has_shift_set(P).
+shift_dir(P,D) :- shift_direction(P,D), schema(P,char_shift).
+shift_dir(P,forward) :- schema(P,char_shift), not has_shift_direction(P).
+candidate(P,caesar_shift) :- schema(P,char_shift).
+answer_type(P,string) :- schema(P,char_shift).
+error(missing_shift_by,P) :- schema(P,char_shift), not has_shift_by(P).
+error(shift_by_without_char_shift,P) :- shift_by(P,N), not schema(P,char_shift).
+error(shift_set_without_char_shift,P) :- shift_set(P,K), not schema(P,char_shift).
+error(shift_direction_without_char_shift,P) :- shift_direction(P,D), not schema(P,char_shift).
+error(two_shift_by,P) :- shift_by(P,A), shift_by(P,B), A != B.
+error(two_shift_set,P) :- shift_set(P,A), shift_set(P,B), A != B.
+error(two_shift_direction,P) :- shift_direction(P,A), shift_direction(P,B), A != B.
+error(shift_by_param_not_int,P) :- shift_by(P,N), arg(P,N,K), K != int.
+
+% ---------- circular elimination (Josephus): every k-th person of a circle of n is removed
+schema(P,circle_elimination) :- ask(P,eliminate_circle), circle_size(P,N).
+has_circle_size(P) :- circle_size(P,N).
+has_circle_step(P) :- circle_step(P,K).
+has_circle_output(P) :- circle_output(P,F).
+has_circle_first(P) :- circle_first(P,V).
+has_circle_start(P) :- circle_start(P,V).
+circle_form(P,F) :- circle_output(P,F), schema(P,circle_elimination).
+circle_form(P,survivor) :- schema(P,circle_elimination), not has_circle_output(P).
+circle_base(P,V) :- circle_first(P,V), schema(P,circle_elimination).
+circle_base(P,"1") :- schema(P,circle_elimination), not has_circle_first(P).
+circle_from(P,V) :- circle_start(P,V), schema(P,circle_elimination).
+circle_from(P,V) :- circle_base(P,V), not has_circle_start(P).
+candidate(P,josephus_survivor) :- schema(P,circle_elimination), circle_form(P,survivor).
+candidate(P,josephus_order) :- schema(P,circle_elimination), circle_form(P,order).
+binds(P,people,A) :- circle_size(P,A).
+answer_type(P,int) :- schema(P,circle_elimination), circle_form(P,survivor).
+answer_type(P,int_list) :- schema(P,circle_elimination), circle_form(P,order).
+error(missing_circle_size,P) :- ask(P,eliminate_circle), not has_circle_size(P).
+error(missing_circle_step,P) :- schema(P,circle_elimination), not has_circle_step(P).
+error(circle_size_without_circle_elimination,P) :- circle_size(P,N), not schema(P,circle_elimination).
+error(circle_step_without_circle_elimination,P) :- circle_step(P,K), not schema(P,circle_elimination).
+error(circle_output_without_circle_elimination,P) :- circle_output(P,F), not schema(P,circle_elimination).
+error(circle_first_without_circle_elimination,P) :- circle_first(P,V), not schema(P,circle_elimination).
+error(circle_start_without_circle_elimination,P) :- circle_start(P,V), not schema(P,circle_elimination).
+error(two_circle_size,P) :- circle_size(P,A), circle_size(P,B), A != B.
+error(two_circle_step,P) :- circle_step(P,A), circle_step(P,B), A != B.
+error(two_circle_output,P) :- circle_output(P,A), circle_output(P,B), A != B.
+error(two_circle_first,P) :- circle_first(P,A), circle_first(P,B), A != B.
+error(two_circle_start,P) :- circle_start(P,A), circle_start(P,B), A != B.
+error(circle_size_param_not_int,P) :- circle_size(P,N), arg(P,N,K), K != int.
+error(circle_step_param_not_int,P) :- circle_step(P,N), arg(P,N,K), K != int.
+error(circle_start_param_not_int,P) :- circle_start(P,N), arg(P,N,K), K != int.
+error(circle_elimination_with_iterate,P) :- schema(P,circle_elimination), iterate(P,A).
+
+% ---------- decimal digits of a number computed from an int parameter (n!, Fibonacci, base**n)
+schema(P,number_digits) :- ask(P,digits_of_number), number_of(P,K,A).
+has_number_of(P) :- number_of(P,K,A).
+has_number_base(P) :- number_base(P,B).
+has_digit_output(P) :- digit_output(P,F).
+digit_form(P,F) :- digit_output(P,F), schema(P,number_digits).
+digit_form(P,sum) :- schema(P,number_digits), not has_digit_output(P).
+number_base_val(P,B) :- number_base(P,B), schema(P,number_digits).
+number_base_val(P,"2") :- schema(P,number_digits), not has_number_base(P).
+candidate(P,number_digits) :- schema(P,number_digits).
+binds(P,number,A) :- number_of(P,K,A).
+answer_type(P,int) :- schema(P,number_digits).
+error(missing_number_of,P) :- ask(P,digits_of_number), not has_number_of(P).
+error(number_of_without_number_digits,P) :- number_of(P,K,A), not schema(P,number_digits).
+error(number_base_without_number_digits,P) :- number_base(P,B), not schema(P,number_digits).
+error(digit_output_without_number_digits,P) :- digit_output(P,F), not schema(P,number_digits).
+error(two_number_of,P) :- number_of(P,K1,A1), number_of(P,K2,A2), K1 != K2.
+error(two_number_of,P) :- number_of(P,K1,A1), number_of(P,K2,A2), A1 != A2.
+error(two_number_base,P) :- number_base(P,A), number_base(P,B), A != B.
+error(two_digit_output,P) :- digit_output(P,A), digit_output(P,B), A != B.
+error(number_of_param_not_int,P) :- number_of(P,K,A), arg(P,A,T), T != int.
+error(number_base_param_not_int,P) :- number_base(P,B), arg(P,B,T), T != int.
+error(number_digits_with_iterate,P) :- schema(P,number_digits), iterate(P,A).

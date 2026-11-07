@@ -1,0 +1,14 @@
+def solve(values):
+    result = []
+    stack = [iter(values)]
+    while stack:
+        try:
+            value = next(stack[-1])
+        except StopIteration:
+            stack.pop()
+            continue
+        if isinstance(value, (list, tuple)):
+            stack.append(iter(value))
+        else:
+            result.append(value)
+    return result

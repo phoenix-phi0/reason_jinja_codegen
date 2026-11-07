@@ -1,0 +1,26 @@
+{% raw %}
+def solve(n, edges):
+    adj = [[] for _ in range(n)]
+    for e in edges:
+        u, v = e[0], e[1]
+        if u == v:
+            return None
+        adj[u].append(v)
+        adj[v].append(u)
+    color = [-1] * n
+    for s in range(n):
+        if color[s] != -1:
+            continue
+        color[s] = 0
+        stack = [s]
+        while stack:
+            x = stack.pop()
+            cx = color[x]
+            for y in adj[x]:
+                if color[y] == -1:
+                    color[y] = 1 - cx
+                    stack.append(y)
+                elif color[y] == cx:
+                    return None
+    return color
+{% endraw %}

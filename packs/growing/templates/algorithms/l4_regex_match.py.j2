@@ -1,0 +1,35 @@
+{% raw %}
+def solve(s, p):
+    # Tokenize pattern into (char, starred) elements
+    toks = []
+    i = 0
+    n = len(p)
+    while i < n:
+        c = p[i]
+        if i + 1 < n and p[i + 1] == '*':
+            # collapse consecutive identical starred tokens
+            if not (toks and toks[-1] == (c, True)):
+                toks.append((c, True))
+            i += 2
+        else:
+            toks.append((c, False))
+            i += 1
+
+    m = len(s)
+    # dp[j] = whether s[:j] matches the tokens processed so far
+    dp = [False] * (m + 1)
+    dp[0] = True
+    for c, star in toks:
+        if star:
+            # zero occurrences keeps dp[j]; otherwise extend from dp[j-1]
+            for j in range(1, m + 1):
+                if not dp[j] and dp[j - 1] and (c == '.' or s[j - 1] == c):
+                    dp[j] = True
+        else:
+            new = [False] * (m + 1)
+            for j in range(1, m + 1):
+                if dp[j - 1] and (c == '.' or s[j - 1] == c):
+                    new[j] = True
+            dp = new
+    return dp[m]
+{% endraw %}

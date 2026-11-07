@@ -1,0 +1,14 @@
+{%- set q = relations.one('ask', key) -%}
+{%- set rg = relations.rows('items_range', key)[0] -%}
+{%- set mod = relations.rows('modulo', key) -%}
+{%- set modv = (mod[0][1]|int) if mod else none -%}
+{%- set form = 'count' if q == 'count_ways' else ('min_terms' if q == 'min_count' else 'feasible') -%}
+{%- set none_answer = value(relations.one('no_answer', key)) if q == 'min_count' else ('0' if q == 'count_ways' else 'False') -%}
+{%- macro num(v) -%}{{ v if relations.has('arg', key, v, 'int') else (v|int) }}{%- endmacro -%}
+def solve({{ params|join(', ') }}):
+    result = range_steps({{ relations.one('target', key) }}, {{ num(rg[1]) }}, {{ num(rg[2]) }}, {{ modv }}, {{ form|pyrepr }})
+{% if q == 'min_count' %}
+    return {{ none_answer }} if result is None else result
+{% else %}
+    return result
+{% endif %}

@@ -1,0 +1,2 @@
+algorithm(K,A) :- task(K,A), supported(A).
+emit(task.py.j2,P,K) :- algorithm(K,A), destination(K,P).

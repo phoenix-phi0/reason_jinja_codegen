@@ -1,0 +1,55 @@
+{% raw %}
+def solve(n, edges, src, dst, k):
+    INF = float("inf")
+    best = {}
+    for a, b, w in edges:
+        key = (a, b)
+        if key not in best or w < best[key]:
+            best[key] = w
+    el = [(a, b, w) for (a, b), w in best.items()]
+    adj = [[] for _ in range(n)]
+    for a, b, w in el:
+        adj[a].append((b, w))
+    for lst in adj:
+        lst.sort()
+
+    K = min(k, max(n - 1, 0))
+    d0 = [INF] * n
+    d0[dst] = 0
+    D = [d0]
+    for _ in range(K):
+        prev = D[-1]
+        new = prev[:]
+        for a, b, w in el:
+            c = w + prev[b]
+            if c < new[a]:
+                new[a] = c
+        if new == prev:
+            break
+        D.append(new)
+    last = len(D) - 1
+
+    def row(r):
+        return D[r if r < last else last]
+
+    cost = row(K)[src]
+    if cost == INF:
+        return None
+    path = [src]
+    u = src
+    r = K
+    while u != dst:
+        target = row(r)[u]
+        prev = row(r - 1)
+        nxt = None
+        for b, w in adj[u]:
+            if w + prev[b] == target:
+                nxt = b
+                break
+        if nxt is None:
+            return None
+        path.append(nxt)
+        u = nxt
+        r -= 1
+    return [cost, path]
+{% endraw %}

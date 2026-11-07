@@ -1,0 +1,76 @@
+% General pack: problem features (facts from vocab.json) -> schema + parameters.
+% The driver adds problem(P) and the extracted facts; learned.dl holds rules added by growth.
+
+% ---------- schema selection
+schema(P,seq_fold) :- iterate(P,A), aggregate(P,G).
+schema(P,grid_components) :- grid(P,A), ask(P,count_components).
+schema(P,grid_components) :- grid(P,A), ask(P,largest_component).
+schema(P,grid_bfs) :- grid(P,A), ask(P,shortest_path).
+schema(P,knapsack) :- items(P,I), target(P,T), ask(P,Q), knap_question(Q).
+knap_question(min_count) :- .
+knap_question(count_ways) :- .
+knap_question(feasible) :- .
+has_schema(P) :- schema(P,S).
+error(no_schema,P) :- problem(P), not has_schema(P).
+error(ambiguous_schema,P) :- schema(P,A), schema(P,B), A != B.
+
+% ---------- sequence fold
+has_map(P) :- map(P,F).
+map_fn(P,F) :- map(P,F).
+map_fn(P,identity) :- schema(P,seq_fold), not has_map(P).
+error(two_maps,P) :- map(P,F), map(P,G), F != G.
+needs_empty(P) :- aggregate(P,max).
+needs_empty(P) :- aggregate(P,min).
+has_empty(P) :- if_empty(P,V).
+error(missing_if_empty,P) :- needs_empty(P), not has_empty(P).
+char_cond(vowel) :- .
+char_cond(consonant) :- .
+char_cond(letter) :- .
+char_cond(ascii_letter) :- .
+char_cond(digit) :- .
+char_cond(upper) :- .
+char_cond(lower) :- .
+char_cond(space) :- .
+char_cond(alnum) :- .
+uses_cond(P,C) :- keep(P,C).
+uses_cond(P,C) :- drop(P,C).
+error(char_condition_on_numbers,P) :- uses_cond(P,C), char_cond(C), iterate(P,A), arg(P,A,int_list).
+error(keep_and_drop_same,P) :- keep(P,C), drop(P,C).
+
+% ---------- grids
+% a parameter declared as a grid is the grid being searched
+grid(P,A) :- arg(P,A,grid).
+connect8(P) :- connect(P,"8").
+neighbours(P,"8") :- grid(P,A), connect8(P).
+neighbours(P,"4") :- grid(P,A), not connect8(P).
+has_passable(P) :- passable(P,C).
+error(missing_passable,P) :- grid(P,A), not has_passable(P).
+has_start(P) :- start(P,K,V).
+has_goal(P) :- goal(P,K,V).
+start_at(P,K,V) :- start(P,K,V).
+start_at(P,corner,top_left) :- schema(P,grid_bfs), not has_start(P).
+goal_at(P,K,V) :- goal(P,K,V).
+goal_at(P,corner,bottom_right) :- schema(P,grid_bfs), not has_goal(P).
+% start/goal cells written as characters are walkable even when not listed as passable
+walk(P,C) :- passable(P,C).
+walk(P,C) :- start_at(P,char,C).
+walk(P,C) :- goal_at(P,char,C).
+
+% ---------- answers for "no solution"
+has_unreachable(P) :- unreachable(P,V).
+no_answer(P,V) :- unreachable(P,V).
+no_answer(P,"-1") :- schema(P,grid_bfs), not has_unreachable(P).
+no_answer(P,"-1") :- schema(P,knapsack), ask(P,min_count), not has_unreachable(P).
+
+% ---------- knapsack
+has_use(P) :- use(P,M).
+use_mode(P,M) :- use(P,M).
+use_mode(P,unlimited) :- schema(P,knapsack), not has_use(P).
+has_order(P) :- order(P,M).
+order_mode(P,M) :- order(P,M).
+order_mode(P,ignored) :- schema(P,knapsack), not has_order(P).
+error(ordered_once_not_supported,P) :- use_mode(P,once), order_mode(P,matters).
+error(order_only_for_count_ways,P) :- order(P,matters), ask(P,Q), Q != count_ways.
+
+emit(solution.py.j2,"solution.py",P) :- problem(P).
+emit(reference.py.j2,"reference.py",P) :- problem(P), want_reference(P).

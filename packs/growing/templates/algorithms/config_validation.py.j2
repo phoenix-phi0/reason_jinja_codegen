@@ -1,0 +1,11 @@
+import json
+
+def solve(text):
+    value = json.loads(text)
+    if not isinstance(value, dict):
+        raise ValueError('object required')
+    if not isinstance(value.get('host'), str) or not value['host'].strip():
+        raise ValueError('host required')
+    if type(value.get('port')) is not int or not 1 <= value['port'] <= 65535:
+        raise ValueError('invalid port')
+    return value

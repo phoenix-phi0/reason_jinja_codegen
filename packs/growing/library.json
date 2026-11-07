@@ -1,0 +1,360 @@
+{
+ "async_map": {
+  "origin": "seed",
+  "signature": null,
+  "tests": null
+ },
+ "bank_account": {
+  "origin": "seed",
+  "signature": null,
+  "tests": null
+ },
+ "binary_search": {
+  "origin": "seed",
+  "signature": null,
+  "tests": null
+ },
+ "chunks": {
+  "origin": "seed",
+  "signature": null,
+  "tests": null
+ },
+ "config_validation": {
+  "origin": "seed",
+  "signature": null,
+  "tests": null
+ },
+ "csv_totals": {
+  "origin": "seed",
+  "signature": null,
+  "tests": null
+ },
+ "flatten": {
+  "origin": "seed",
+  "signature": null,
+  "tests": null
+ },
+ "lru_cache": {
+  "origin": "seed",
+  "signature": null,
+  "tests": null
+ },
+ "merge_intervals": {
+  "origin": "seed",
+  "signature": null,
+  "tests": null
+ },
+ "moving_average": {
+  "origin": "seed",
+  "signature": null,
+  "tests": null
+ },
+ "retry": {
+  "origin": "seed",
+  "signature": null,
+  "tests": null
+ },
+ "shortest_path": {
+  "origin": "seed",
+  "signature": null,
+  "tests": null
+ },
+ "stable_unique": {
+  "origin": "seed",
+  "signature": null,
+  "tests": null
+ },
+ "topological_sort": {
+  "origin": "seed",
+  "signature": null,
+  "tests": null
+ },
+ "l1_range_spread": {
+  "origin": "learned:sonnet:round1",
+  "signature": "solve(nums)",
+  "statement": "Given a list of integers nums, return max(nums) - min(nums). Return 0 if the list is empty.",
+  "tests": "tests/l1_range_spread.json"
+ },
+ "l1_sum_even": {
+  "origin": "learned:sonnet:round1",
+  "signature": "solve(nums)",
+  "statement": "Given a list of integers nums, return the sum of all even numbers (0 and negative evens count). Return 0 for an empty list.",
+  "tests": "tests/l1_sum_even.json"
+ },
+ "l1_reverse_string": {
+  "origin": "learned:sonnet:round1",
+  "signature": "solve(s)",
+  "statement": "Given a string s, return s reversed (character by character; spaces and any Unicode characters are ordinary characters).",
+  "tests": "tests/l1_reverse_string.json"
+ },
+ "l1_count_vowels": {
+  "origin": "learned:sonnet:round1",
+  "signature": "solve(s)",
+  "statement": "Return the number of vowels (a, e, i, o, u; case-insensitive) in string s. 'y' is not a vowel.",
+  "tests": "tests/l1_count_vowels.json"
+ },
+ "l1_is_palindrome": {
+  "origin": "learned:sonnet:round1",
+  "signature": "solve(s)",
+  "statement": "Return true if s reads the same forwards and backwards after removing every character that is not an ASCII letter or digit [A-Za-z0-9] and ignoring letter case. An empty cleaned string is a palindrome. Underscore is not alphanumeric.",
+  "tests": "tests/l1_is_palindrome.json"
+ },
+ "l1_fizzbuzz": {
+  "origin": "learned:sonnet:round1",
+  "signature": "solve(n)",
+  "statement": "Return a list of strings for i = 1..n: 'FizzBuzz' if i is divisible by 15, 'Fizz' if by 3, 'Buzz' if by 5, otherwise str(i). Return [] for n = 0.",
+  "tests": "tests/l1_fizzbuzz.json"
+ },
+ "l2_two_sum": {
+  "origin": "learned:sonnet:round1",
+  "signature": "solve(nums, target)",
+  "statement": "Given a list of integers nums and an integer target, return [i, j] with i < j such that nums[i] + nums[j] == target. It is guaranteed that exactly one pair of indices i < j satisfies this, so the answer is unique.",
+  "tests": "tests/l2_two_sum.json"
+ },
+ "l2_valid_parentheses": {
+  "origin": "learned:sonnet:round1",
+  "signature": "solve(s)",
+  "statement": "s consists only of the characters ()[]{}. Return true iff the brackets are correctly balanced and nested (every opener closed by the same type in the right order). The empty string is valid.",
+  "tests": "tests/l2_valid_parentheses.json"
+ },
+ "l2_merge_sorted": {
+  "origin": "learned:sonnet:round1",
+  "signature": "solve(a, b)",
+  "statement": "a and b are lists of integers sorted in non-decreasing order. Return one list with all elements of both, sorted in non-decreasing order (duplicates kept).",
+  "tests": "tests/l2_merge_sorted.json"
+ },
+ "l2_roman_to_int": {
+  "origin": "learned:sonnet:round1",
+  "signature": "solve(s)",
+  "statement": "Convert a valid Roman numeral (value 1..3999, standard subtractive notation: IV, IX, XL, XC, CD, CM) to an integer.",
+  "tests": "tests/l2_roman_to_int.json"
+ },
+ "l2_best_time_stock": {
+  "origin": "learned:sonnet:round1",
+  "signature": "solve(prices)",
+  "statement": "prices[i] is a stock price on day i. Buy on one day and sell on a later day (at most one transaction). Return the maximum profit, or 0 if no profit is possible (including empty or single-day input).",
+  "tests": "tests/l2_best_time_stock.json"
+ },
+ "l2_longest_common_prefix": {
+  "origin": "learned:sonnet:round1",
+  "signature": "solve(strs)",
+  "statement": "Return the longest common prefix of all strings in strs, or '' if none (or if strs is empty).",
+  "tests": "tests/l2_longest_common_prefix.json"
+ },
+ "l3_coin_change": {
+  "origin": "learned:sonnet:round1",
+  "signature": "solve(coins, amount)",
+  "statement": "Given distinct positive coin denominations coins (unlimited supply of each) and a non-negative integer amount, return the fewest coins needed to make exactly amount, or -1 if impossible. amount 0 needs 0 coins.",
+  "tests": "tests/l3_coin_change.json"
+ },
+ "l3_num_islands": {
+  "origin": "learned:sonnet:round1",
+  "signature": "solve(grid)",
+  "statement": "grid is a list of equal-length strings of '1' (land) and '0' (water). An island is a maximal group of land cells connected 4-directionally (up/down/left/right; diagonals do NOT connect). Return the number of islands. An empty grid has 0 islands.",
+  "tests": "tests/l3_num_islands.json"
+ },
+ "l3_lru_cache": {
+  "origin": "learned:sonnet:round1",
+  "signature": "solve(capacity, ops)",
+  "statement": "Simulate an LRU cache with the given capacity (>= 1). ops is a list of ['put', key, value] or ['get', key]. get returns the value (or -1 if absent) and marks the key most recently used. put inserts or updates the key (marking it most recently used) and, if the size then exceeds capacity, evicts the least recently used key. Return the list of results of the get operations, in order.",
+  "tests": "tests/l3_lru_cache.json"
+ },
+ "l3_calculator": {
+  "origin": "learned:sonnet:round1",
+  "signature": "solve(s)",
+  "statement": "s is an expression of non-negative integers and the binary operators + - * / with optional spaces; no parentheses and no unary minus. Evaluate it with usual precedence (* and / before + and -, left to right). Division is integer division truncating toward zero. No division by zero occurs. Intermediate and final values fit in 64 bits.",
+  "tests": "tests/l3_calculator.json"
+ },
+ "l3_topo_order": {
+  "origin": "learned:sonnet:round1",
+  "signature": "solve(n, edges)",
+  "statement": "Nodes are 0..n-1; each edge [a, b] means a must come before b (duplicate edges and self-loops may appear). Return a topological order of all nodes that is lexicographically smallest (at each step output the smallest-numbered node whose prerequisites are all done). If no valid order exists (a cycle, including a self-loop), return [].",
+  "tests": "tests/l3_topo_order.json"
+ },
+ "l3_longest_unique_substring": {
+  "origin": "learned:sonnet:round1",
+  "signature": "solve(s)",
+  "statement": "Return the length of the longest contiguous substring of s containing no repeated character (case-sensitive; spaces and symbols count as characters). Empty string gives 0.",
+  "tests": "tests/l3_longest_unique_substring.json"
+ },
+ "l4_edit_distance": {
+  "origin": "learned:sonnet:round1",
+  "signature": "solve(a, b)",
+  "statement": "Return the minimum number of single-character insertions, deletions and substitutions needed to turn string a into string b (Levenshtein distance).",
+  "tests": "tests/l4_edit_distance.json"
+ },
+ "l4_trapping_rain": {
+  "origin": "learned:sonnet:round1",
+  "signature": "solve(height)",
+  "statement": "height[i] is the height of a unit-width bar. After raining, return the total units of water trapped between the bars. Water at a position is min(tallest bar to its left incl. itself, tallest to its right incl. itself) minus its height. Empty input gives 0.",
+  "tests": "tests/l4_trapping_rain.json"
+ },
+ "l4_median_two_sorted": {
+  "origin": "learned:sonnet:round1",
+  "signature": "solve(a, b)",
+  "statement": "a and b are sorted (non-decreasing) lists of integers, not both empty. Return the median of the combined multiset as a float: the middle element if the total count is odd, otherwise the mean of the two middle elements. (Target complexity O(log(m+n)), but any correct solution is accepted.)",
+  "tests": "tests/l4_median_two_sorted.json"
+ },
+ "l4_word_ladder": {
+  "origin": "learned:sonnet:round1",
+  "signature": "solve(begin, end, words)",
+  "statement": "Transform begin into end changing exactly one letter per step; every word after begin must be in the list words (begin itself need not be). Return the number of words in the shortest sequence, counting begin and end (so begin->end directly is 2). Return 0 if end is not in words or no sequence exists. All words have equal length; words may contain duplicates; begin != end.",
+  "tests": "tests/l4_word_ladder.json"
+ },
+ "l4_largest_rectangle": {
+  "origin": "learned:sonnet:round1",
+  "signature": "solve(heights)",
+  "statement": "heights[i] >= 0 is the height of a unit-width bar of a histogram. Return the area of the largest axis-aligned rectangle that fits entirely inside the histogram (spanning contiguous bars). Empty input gives 0.",
+  "tests": "tests/l4_largest_rectangle.json"
+ },
+ "l4_regex_match": {
+  "origin": "learned:sonnet:round1",
+  "signature": "solve(s, p)",
+  "statement": "Implement matching of the WHOLE string s against pattern p, where '.' matches any single character and 'c*' matches zero or more of the preceding element (c is a letter or '.'). s contains lowercase letters only; p contains lowercase letters, '.' and '*', and every '*' follows a letter or '.'. Return true iff the entire s matches p.",
+  "tests": "tests/l4_regex_match.json"
+ },
+ "sum_of_odd_numbers": {
+  "origin": "learned:sonnet:round1",
+  "signature": "solve(nums)",
+  "statement": "Return the sum of the odd numbers in nums (0 if none).",
+  "tests": "tests/sum_of_odd_numbers.json"
+ },
+ "count_consonants": {
+  "origin": "learned:sonnet:round1",
+  "signature": "solve(s)",
+  "statement": "Return how many ASCII letters in s are not vowels (a, e, i, o, u, case-insensitive).",
+  "tests": "tests/count_consonants.json"
+ },
+ "reverse_each_word": {
+  "origin": "learned:sonnet:round1",
+  "signature": "solve(s)",
+  "statement": "Reverse the characters of each space-separated word, keeping word order and the single spaces between words.",
+  "tests": "tests/reverse_each_word.json"
+ },
+ "stock_profit_unlimited_trades": {
+  "origin": "learned:sonnet:round1",
+  "signature": "solve(prices)",
+  "statement": "Return the maximum total profit when you may buy and sell any number of times (hold at most one share at a time).",
+  "tests": "tests/stock_profit_unlimited_trades.json"
+ },
+ "h_strings_run_length_encode": {
+  "origin": "learned:sonnet:round1",
+  "signature": "solve(s)",
+  "statement": "Given a string s, split it into maximal runs of identical consecutive characters. For each run, output the decimal length of the run (no leading zeros, no separators) immediately followed by the single character of that run. Concatenate these pieces in left-to-right order and return the result. Characters are compared by equality of Python str elements (Unicode code points); digits in s are ordinary characters and are encoded like any other character. Return \"\" for the empty string. Examples: \"a",
+  "tests": "tests/h_strings_run_length_encode.json"
+ },
+ "h_strings_csv_record_fields": {
+  "origin": "learned:sonnet:round1",
+  "signature": "solve(line)",
+  "statement": "The input is a single CSV record: it contains no newline ('\\n') or carriage return characters and is guaranteed to be well-formed. Fields are separated by commas. Each field is either unquoted or quoted. An unquoted field contains no double-quote characters; its value is the exact text between its surrounding commas (or the line boundaries), spaces included. A quoted field begins with a double quote and ends at the next double quote that is not immediately followed by another double quote; insid",
+  "tests": "tests/h_strings_csv_record_fields.json"
+ },
+ "h_strings_shortest_unique_prefix": {
+  "origin": "learned:sonnet:round1",
+  "signature": "solve(words)",
+  "statement": "Given a list words of non-empty strings (the list may be empty and may contain duplicates), compute for each index i an answer ans[i]. Consider the non-empty prefixes p of words[i] in increasing length. A prefix p is valid for index i if no other index j != i (indices are compared, so a duplicate value counts as another index) has words[j] starting with p. ans[i] is the shortest valid prefix. If no prefix of words[i] is valid, ans[i] is the whole word words[i]. Return the list ans in the same or",
+  "tests": "tests/h_strings_shortest_unique_prefix.json"
+ },
+ "h_strings_lyndon_factorization": {
+  "origin": "learned:sonnet:round1",
+  "signature": "solve(s)",
+  "statement": "A Lyndon word is a non-empty string that is strictly smaller (in lexicographic order of code points, as Python compares str) than each of its proper non-empty suffixes. By the Chen-Fox-Lyndon theorem, every string s can be written in exactly one way as s = w1 + w2 + ... + wk where every wi is a Lyndon word and w1 >= w2 >= ... >= wk in lexicographic order. Return the list [w1, ..., wk] for the input s, in order. The input consists only of lowercase ASCII letters 'a'-'z' (it may be empty; the empt",
+  "tests": "tests/h_strings_lyndon_factorization.json"
+ },
+ "h_strings_shortest_prefix_palindrome": {
+  "origin": "learned:sonnet:round1",
+  "signature": "solve(s)",
+  "statement": "Given a string s (possibly empty), find a palindrome of minimum possible length that has the form X + s, where X is any string (possibly empty) prepended to s, and return that palindrome. The answer is unique: for the minimal length of X the resulting palindrome is determined, so no tie-breaking is needed. A palindrome reads the same forwards and backwards. Examples: 'aacecaaa' -> 'aaacecaaa'; 'abcd' -> 'dcbabcd'; 'ab' -> 'bab'; 'abba' -> 'abba'; '' -> ''.",
+  "tests": "tests/h_strings_shortest_prefix_palindrome.json"
+ },
+ "h_graphs_bipartite_coloring": {
+  "origin": "learned:sonnet:round1",
+  "signature": "solve(n, edges)",
+  "statement": "Let G be an undirected graph on vertices 0..n-1 given by edges, a list of pairs [u, v] with 0 <= u, v < n. Duplicate edges and self-loops may appear. Find a proper 2-colouring of G with colours 0 and 1: the two endpoints of every edge must get different colours (a self-loop makes this impossible). The colouring is canonical: inside every connected component, the vertex with the smallest index gets colour 0. Return the list of n colours (entry i is the colour of vertex i) if a proper 2-colouring ",
+  "tests": "tests/h_graphs_bipartite_coloring.json"
+ },
+ "h_graphs_kruskal_mst_trace": {
+  "origin": "learned:sonnet:round1",
+  "signature": "solve(n, edges)",
+  "statement": "Given n vertices 0..n-1 and a list edges of weighted undirected edges [u, v, w], where w is an integer that may be negative. Parallel edges and self-loops may appear. Run Kruskal's algorithm: sort the edges by the key (w, min(u, v), max(u, v), index in the input list) and scan them in that order, taking an edge exactly when its endpoints lie in different components (use union-find). Return [total, chosen], where total is the sum of the weights of the taken edges and chosen is the list of taken e",
+  "tests": "tests/h_graphs_kruskal_mst_trace.json"
+ },
+ "h_graphs_k_edge_cheapest_path": {
+  "origin": "learned:sonnet:round1",
+  "signature": "solve(n, edges, src, dst, k)",
+  "statement": "Given a directed graph on vertices 0..n-1. Each element [a, b, w] of edges is a directed edge a -> b with integer cost w >= 1; parallel edges may appear. Also given a source src, a target dst and a budget k >= 0. A route is a walk p0 = src, p1, ..., pm = dst (vertices may repeat) with 0 <= m <= k such that each consecutive pair (p_i, p_(i+1)) is an edge of the graph; the route is a vertex sequence, and its cost is the sum over consecutive pairs of the cheapest edge a -> b between them. Return [c",
+  "tests": "tests/h_graphs_k_edge_cheapest_path.json"
+ },
+ "h_graphs_queens_completion": {
+  "origin": "learned:sonnet:round1",
+  "signature": "solve(n, placed)",
+  "statement": "A placement of n queens is a list p of length n, where p[r] in {0..n-1} is the column of the queen in row r. It is valid if for all rows r < s: p[r] != p[s] and |p[r] - p[s]| != s - r. You are given n and a list placed of pre-placed queens [r, c] (0-indexed). Let count be the number of valid placements p with p[r] = c for every [r, c] in placed. If two pre-placed queens share a row, a column or a diagonal, or if some pre-placed cell lies outside the board, count is 0. Return [count, first], wher",
+  "tests": "tests/h_graphs_queens_completion.json"
+ },
+ "h_graphs_keys_doors_steps": {
+  "origin": "learned:sonnet:round1",
+  "signature": "solve(grid)",
+  "statement": "A grid is a list of equal-length strings (at least one row). Cell characters: '#' is a wall; '.' is an empty floor cell; '@' is the start, and there is exactly one '@' in the grid; 'a'..'f' is a key cell; 'A'..'F' is a lock cell. The player moves one cell at a time to one of the four orthogonal neighbours. Walls cannot be entered and the grid boundary cannot be left. Entering a key cell picks that key up, and keys are kept forever. A lock cell can be entered only if the key with the same letter ",
+  "tests": "tests/h_graphs_keys_doors_steps.json"
+ },
+ "h_dp_no_adjacent_ones_k": {
+  "origin": "learned:sonnet:round1",
+  "signature": "solve(n, k)",
+  "statement": "Given integers n >= 0 and k >= 0 (n <= 3000, k <= 3000), count the binary strings of length n that contain exactly k characters '1' and in which no two '1' characters are adjacent (positions i and i+1 are never both '1'). Return the count modulo 1000000007. If k > n the answer is 0. The empty string is the only string of length 0, so solve(0, 0) = 1.",
+  "tests": "tests/h_dp_no_adjacent_ones_k.json"
+ },
+ "h_dp_digit_sum_multiples": {
+  "origin": "learned:sonnet:round1",
+  "signature": "solve(N, m)",
+  "statement": "Given integers N and m with 0 <= N <= 10^18 and 1 <= m <= 100, count the integers x with 1 <= x <= N whose decimal digit sum is divisible by m (0 is not counted). For example, the digit sum of 2024 is 8. Return the exact count, not reduced modulo anything. solve(0, m) = 0.",
+  "tests": "tests/h_dp_digit_sum_multiples.json"
+ },
+ "h_dp_bounded_representations": {
+  "origin": "learned:sonnet:round1",
+  "signature": "solve(n, parts, limit)",
+  "statement": "Given an integer n (0 <= n <= 2000), a list parts of pairwise distinct positive integers (length 0 to 30, each value at most 2000), and an integer limit (1 <= limit <= 2000), count the vectors (c_1, ..., c_r), where r = len(parts), such that every 0 <= c_i <= limit and c_1*parts[0] + ... + c_r*parts[r-1] = n. Vectors are counted by their coordinates, so the order of parts does not affect the answer. Return the count modulo 1000000007. For n = 0 the all-zero vector counts (answer 1, even when par",
+  "tests": "tests/h_dp_bounded_representations.json"
+ },
+ "h_dp_matrix_chain_optimal_count": {
+  "origin": "learned:sonnet:round1",
+  "signature": "solve(dims)",
+  "statement": "Given a list dims = [d_0, d_1, ..., d_n] with n >= 1, 2 <= len(dims) <= 201 and 1 <= d_i <= 100, consider the chain of n matrices M_1, ..., M_n where M_i has size d_{i-1} x d_i. Multiplying a p x q matrix by a q x r matrix costs p*q*r scalar multiplications. A full parenthesization is a fully bracketed binary product of M_1 ... M_n (for n = 1 the only one is M_1 itself, with cost 0). Let M be the minimum, over all full parenthesizations, of the total number of scalar multiplications, and let C b",
+  "tests": "tests/h_dp_matrix_chain_optimal_count.json"
+ },
+ "h_dp_coprime_sequences_no_equal_neighbors": {
+  "origin": "learned:sonnet:round1",
+  "signature": "solve(n, m)",
+  "statement": "Given integers n >= 1 (n <= 10^18) and m >= 1 (m <= 200000), count the sequences (b_1, ..., b_n) of integers with 1 <= b_i <= m such that (a) gcd(b_1, ..., b_n) = 1, where the gcd of the whole sequence is the largest positive integer dividing every b_i (for n = 1 this is b_1 itself), and (b) b_i != b_{i+1} for every 1 <= i < n. Return the count modulo 1000000007.",
+  "tests": "tests/h_dp_coprime_sequences_no_equal_neighbors.json"
+ },
+ "h_sim_stack_op_log": {
+  "origin": "learned:sonnet:round1",
+  "signature": "solve(ops)",
+  "statement": "You are given a list of operation strings, processed in order on an initially empty stack of integers. Each operation is one of: \"push X\" (X is an integer, possibly negative) pushes X onto the stack and produces no output; \"pop\" removes the top element and appends its value to the output list; \"top\" appends the value of the top element to the output list without removing it. If \"pop\" or \"top\" is applied to an empty stack, append the string \"EMPTY\" to the output list instead and leave the stack u",
+  "tests": "tests/h_sim_stack_op_log.json"
+ },
+ "h_sim_single_worker_schedule": {
+  "origin": "learned:sonnet:round1",
+  "signature": "solve(jobs)",
+  "statement": "A single worker processes jobs. Each job is a list [arrival, duration, priority, id]: it becomes available at time arrival (a non-negative integer), needs duration time units (a positive integer), has priority (a smaller number is more urgent), and id is a unique integer. The simulation starts at time 0 with the worker idle. Whenever the worker is free at time t, it considers all jobs with arrival <= t that have not been started yet. If there are none, the worker waits and time jumps to the next",
+  "tests": "tests/h_sim_single_worker_schedule.json"
+ },
+ "h_sim_interval_stab_queries": {
+  "origin": "learned:sonnet:round1",
+  "signature": "solve(ops)",
+  "statement": "Maintain a set of active half-open integer intervals [s, e) (s < e), each identified by an integer id. Process the operations in order. [\"add\", id, s, e] activates interval id covering [s, e); the id is guaranteed not to be active at that moment (it may have been removed earlier and reused). [\"remove\", id] deactivates that interval; the id is guaranteed to be active. [\"query\", x] produces an output: the list of ids of all currently active intervals with s <= x < e, sorted in ascending order. Ret",
+  "tests": "tests/h_sim_interval_stab_queries.json"
+ },
+ "h_sim_patient_servers": {
+  "origin": "learned:sonnet:round1",
+  "signature": "solve(k, customers)",
+  "statement": "A service desk has k identical servers numbered 0 to k-1, all free at time 0. There are n customers; customer i is given as [arrival, service, patience] (non-negative integers, service >= 1, patience >= 0). Customers are handled in the order of (arrival, input index). For each customer in that order: let f be the earliest time at which any server becomes free, and let j be the lowest-numbered server that is free at time f. Let start = max(arrival, f). If start - arrival > patience, the customer ",
+  "tests": "tests/h_sim_patient_servers.json"
+ },
+ "h_sim_nested_tx_store": {
+  "origin": "learned:sonnet:round1",
+  "signature": "solve(ops)",
+  "statement": "Simulate a key-value store with nested transactions. The store starts empty with no transaction open. Operations are lists whose first element is the command name. [\"SET\", key, value] sets key to the integer value. [\"DELETE\", key] removes key if present and does nothing otherwise. [\"GET\", key] produces an output: the current value of key, or null if key is absent. [\"COUNT\", value] produces an output: the number of keys whose current value equals value. [\"BEGIN\"] opens a new transaction nested in",
+  "tests": "tests/h_sim_nested_tx_store.json"
+ }
+}

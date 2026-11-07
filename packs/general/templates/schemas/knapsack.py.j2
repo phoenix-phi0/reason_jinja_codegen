@@ -1,0 +1,44 @@
+{%- set q = relations.one('ask', key) -%}
+{%- set once = relations.one('use_mode', key) == 'once' -%}
+{%- set ordered = relations.one('order_mode', key) == 'matters' -%}
+{%- set mod = relations.rows('modulo', key) -%}
+{%- set modv = (mod[0][1]|int) if mod else none -%}
+{%- set terms = relations.rows('terms', key) -%}
+{%- set none_answer = value(relations.one('no_answer', key)) if q == 'min_count' else ('0' if q == 'count_ways' else 'False') -%}
+def {{ fname|default('solve') }}({{ (fparams|default(params))|join(', ') }}):
+    items = list({{ relations.one('items', key) }})
+{% if relations.rows('unique', key) %}
+    items = sorted(set(items))
+{% endif %}
+    if any(v < 0 for v in items){% if not once %} or 0 in items{% endif %}:
+        raise ValueError({{ ('item values must be positive' if not once else 'item values must be non-negative')|pyrepr }})
+    target = {{ relations.one('target', key) }}
+{% if relations.rows('items_literal', key) %}
+    if target < 0:
+        return {{ none_answer }}
+{% endif %}
+{% if terms %}
+    limit = {{ terms[0][2] }}
+    if limit < 0 or target < 0:
+        return {{ none_answer }}
+    ways = knap_terms_table(items, target, limit, {{ once }}, {{ ordered }}, {{ modv if q == 'count_ways' else None }})
+    counts = {{ '[limit]' if terms[0][1] == 'exactly' else 'range(limit + 1)' }}
+{% if q == 'count_ways' %}
+    total = sum(ways[j] for j in counts)
+    return {{ ('total % ' ~ modv) if mod else 'total' }}
+{% elif q == 'min_count' %}
+    for j in counts:
+        if ways[j] > 0:
+            return j
+    return {{ none_answer }}
+{% else %}
+    return any(ways[j] > 0 for j in counts)
+{% endif %}
+{% elif q == 'min_count' %}
+    best = knap_min_count(items, target, {{ once }})
+    return {{ none_answer }} if best is None else best
+{% elif q == 'count_ways' %}
+    return knap_count_ways(items, target, {{ once }}, {{ ordered }}, {{ modv }})
+{% else %}
+    return knap_feasible(items, target, {{ once }})
+{% endif %}

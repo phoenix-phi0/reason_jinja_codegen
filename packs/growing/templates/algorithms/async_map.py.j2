@@ -1,0 +1,10 @@
+import asyncio
+
+async def solve(operation, values, concurrency=3):
+    if type(concurrency) is not int or concurrency <= 0:
+        raise ValueError('positive integer concurrency required')
+    semaphore = asyncio.Semaphore(concurrency)
+    async def run(value):
+        async with semaphore:
+            return await operation(value)
+    return await asyncio.gather(*(run(value) for value in values))

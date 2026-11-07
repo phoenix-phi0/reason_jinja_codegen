@@ -1,0 +1,40 @@
+{% raw %}
+def solve(line):
+    fields = []
+    n = len(line)
+    i = 0
+    find = line.find
+    while True:
+        if i < n and line[i] == '"':
+            # quoted field
+            parts = []
+            i += 1
+            while True:
+                j = find('"', i)
+                if j + 1 < n and line[j + 1] == '"':
+                    parts.append(line[i:j + 1])
+                    i = j + 2
+                else:
+                    parts.append(line[i:j])
+                    i = j + 1
+                    break
+            fields.append(''.join(parts))
+            # i is at comma or end
+            if i >= n:
+                break
+            i += 1  # skip comma
+            if i >= n:
+                fields.append('')
+                break
+        else:
+            j = find(',', i)
+            if j == -1:
+                fields.append(line[i:])
+                break
+            fields.append(line[i:j])
+            i = j + 1
+            if i >= n:
+                fields.append('')
+                break
+    return fields
+{% endraw %}

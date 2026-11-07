@@ -1,0 +1,22 @@
+{% raw %}
+import heapq
+
+
+def solve(k, customers):
+    n = len(customers)
+    res = [None] * n
+    order = sorted(range(n), key=lambda i: (customers[i][0], i))
+    heap = [(0, j) for j in range(k)]
+    heapq.heapify(heap)
+    for i in order:
+        a, s, p = customers[i]
+        f, j = heap[0]
+        start = a if a > f else f
+        if start - a > p:
+            res[i] = "ABANDONED"
+        else:
+            fin = start + s
+            heapq.heapreplace(heap, (fin, j))
+            res[i] = [start, fin, j]
+    return res
+{% endraw %}

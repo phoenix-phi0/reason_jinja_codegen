@@ -1,0 +1,27 @@
+{% raw %}
+import heapq
+
+
+def solve(n, edges):
+    adj = [[] for _ in range(n)]
+    indeg = [0] * n
+    for e in edges:
+        a, b = e[0], e[1]
+        adj[a].append(b)
+        indeg[b] += 1
+
+    heap = [i for i in range(n) if indeg[i] == 0]
+    heapq.heapify(heap)
+    order = []
+    while heap:
+        u = heapq.heappop(heap)
+        order.append(u)
+        for v in adj[u]:
+            indeg[v] -= 1
+            if indeg[v] == 0:
+                heapq.heappush(heap, v)
+
+    if len(order) != n:
+        return []
+    return order
+{% endraw %}

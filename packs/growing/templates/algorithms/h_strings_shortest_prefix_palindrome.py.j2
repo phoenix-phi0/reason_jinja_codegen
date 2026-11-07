@@ -1,0 +1,17 @@
+{% raw %}
+def solve(s):
+    if not s:
+        return s
+    t = s + "#" + s[::-1]
+    n = len(t)
+    f = [0] * n
+    for i in range(1, n):
+        k = f[i - 1]
+        while k and t[i] != t[k]:
+            k = f[k - 1]
+        if t[i] == t[k]:
+            k += 1
+        f[i] = k
+    L = f[-1]
+    return s[L:][::-1] + s
+{% endraw %}

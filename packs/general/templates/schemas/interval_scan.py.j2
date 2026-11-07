@@ -1,0 +1,48 @@
+{%- from 'composition.j2' import source_expr with context -%}
+{%- set closed = relations.has('interval_ends', key, 'closed') -%}
+{%- set d = 1 if closed else 0 -%}
+{%- set gaps = relations.rows('interval_gap', key) -%}
+{%- set reach = d + ((gaps[0][-1]|int) if gaps else 0) -%}
+{%- set mind = relations.rows('min_depth', key) -%}
+{%- set maxd = relations.rows('max_depth', key) -%}
+{%- set outs = relations.rows('interval_output', key) -%}
+{%- set form = outs[0][-1] if outs else 'intervals' -%}
+{%- set pouts = relations.rows('pair_output', key) -%}
+{%- set pform = pouts[0][-1] if pouts else 'count' -%}
+{%- set thr = relations.rows('at_least', key) -%}
+def {{ fname|default('solve') }}({{ (fparams|default(params))|join(', ') }}):
+    pairs = sorted(([iv[0], iv[1]] for iv in {{ source_expr(key) }} if iv[0] < iv[1] + {{ d }}), key=lambda p: (p[0], p[1]))
+{% if relations.has('ask', key, 'overlap_pairs') %}
+    total = len(pairs) * (len(pairs) - 1) // 2
+    good = interval_overlapping_pairs(pairs, {{ reach }})
+    hits = {{ 'total - good' if relations.has('pair_relation', key, 'disjoint') else 'good' }}
+{% if pform == 'exists' %}
+    return hits > 0
+{% elif pform == 'all' %}
+    return hits == total
+{% else %}
+    return hits
+{% endif %}
+{% elif relations.has('ask', key, 'covered_length') %}
+    return interval_covered_length(pairs, {{ reach }}, {{ (mind[0][-1]|int) if mind else 1 }}, {{ (maxd[0][-1]|int) if maxd else None }})
+{% elif relations.has('ask', key, 'merge_intervals') %}
+    merged = interval_merge(pairs, {{ reach }})
+{% if form == 'merged_count' %}
+    return len(merged)
+{% elif form == 'covered_count' %}
+    return sum(e - s + {{ d }} for s, e in merged)
+{% elif form == 'gap_count' %}
+    return sum(merged[i + 1][0] - merged[i][1] - {{ d }} for i in range(len(merged) - 1))
+{% elif form == 'longest_covered' %}
+    return max((e - s + {{ d }} for s, e in merged), default=0)
+{% else %}
+    return merged
+{% endif %}
+{% else %}
+    best = interval_max_overlap(pairs, {{ reach }})
+{% if thr %}
+    return best >= {{ thr[0][-1]|int }}
+{% else %}
+    return best
+{% endif %}
+{% endif %}

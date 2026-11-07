@@ -1,0 +1,41 @@
+{%- macro num(v) -%}{{ v if relations.has('arg', key, v, 'int') else (v|int) }}{%- endmacro -%}
+{%- set nof = relations.rows('number_of', key)[0] -%}
+def solve({{ params|join(', ') }}):
+    n = {{ nof[2] }}
+    kind = {{ nof[1]|pyrepr }}
+    base = {{ num(relations.one('number_base_val', key)) }}
+    form = {{ relations.one('digit_form', key)|pyrepr }}
+    if n < 0:
+        raise ValueError('n must be non-negative')
+    value = 1
+    if kind == 'factorial':
+        for i in range(1, n + 1):
+            value = value * i
+    elif kind == 'fibonacci':
+        a, b = 0, 1
+        for _ in range(n):
+            a, b = b, a + b
+        value = a
+    else:
+        for _ in range(n):
+            value = value * abs(base)
+    digits = []
+    rest = abs(value)
+    while rest > 0:
+        rest, d = divmod(rest, 10)
+        digits.append(d)
+    if not digits:
+        digits = [0]
+    if form == 'sum':
+        return sum(digits)
+    if form == 'count':
+        return len(digits)
+    if form == 'max_digit':
+        return max(digits)
+    zeros = 0
+    if value != 0:
+        for d in digits:
+            if d != 0:
+                break
+            zeros += 1
+    return zeros

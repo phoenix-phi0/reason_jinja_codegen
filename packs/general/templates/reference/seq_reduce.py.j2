@@ -1,0 +1,61 @@
+{%- from 'composition.j2' import source_expr with context -%}
+{%- set params = item.params -%}
+{%- set COND = {
+  'even': 'x % 2 == 0', 'odd': 'x % 2 != 0', 'positive': 'x > 0', 'negative': 'x < 0',
+  'nonzero': 'x != 0', 'zero': 'x == 0'} -%}
+{%- set CMP = {'ge': '>=', 'gt': '>', 'le': '<=', 'lt': '<'} -%}
+{%- set MAP = {'identity': 'x', 'square': 'x * x', 'abs': 'abs(x)', 'negate': '-x', 'to_int': 'int(x)'} -%}
+{%- set conds = [] -%}
+{%- for r in relations.rows('keep', key) %}{% set _ = conds.append(COND[r[-1]]) %}{% endfor -%}
+{%- for r in relations.rows('drop', key) %}{% set _ = conds.append('not (' ~ COND[r[-1]] ~ ')') %}{% endfor -%}
+{%- for r in relations.rows('remainder', key) %}{% set _ = conds.append('x % ' ~ (r[-2]|int) ~ ' == ' ~ (r[-1]|int)) %}{% endfor -%}
+{%- for r in relations.rows('bound', key) %}{% if r[-2].startswith('abs_') %}{% set _ = conds.append('abs(x) ' ~ CMP[r[-2][4:]] ~ ' ' ~ (r[-1]|int)) %}{% else %}{% set _ = conds.append('x ' ~ CMP[r[-2]] ~ ' ' ~ (r[-1]|int)) %}{% endif %}{% endfor -%}
+{%- set maps = relations.rows('map', key) -%}
+{%- set expr = [MAP[maps[0][-1] if maps else 'identity']] -%}
+{%- for r in relations.rows('floordiv', key) %}{% set _ = expr.append('(' ~ expr[-1] ~ ') // (' ~ (r[-1]|int) ~ ')') %}{% endfor -%}
+{%- for r in relations.rows('scale', key) %}{% set _ = expr.append('(' ~ expr[-1] ~ ') * (' ~ (r[-1]|int) ~ ')') %}{% endfor -%}
+{%- for r in relations.rows('add', key) %}{% set _ = expr.append('(' ~ expr[-1] ~ ') + (' ~ (r[-1]|int) ~ ')') %}{% endfor -%}
+{%- set dist = relations.rows('distinct', key)|map('last')|list -%}
+{%- set src = source_expr(key) -%}
+{%- set op = relations.rows('fold', key)[0][-1] -%}
+{%- set e = relations.one('if_empty', key) -%}
+def _gcd(a, b):
+    a, b = abs(a), abs(b)
+    while b:
+        a, b = b, a % b
+    return a
+
+
+def {{ fname|default('solve') }}({{ (fparams|default(params))|join(', ') }}):
+    originals = []
+    for x in {{ src }}:
+        if {{ ('True' if 'original' not in dist else 'x not in originals') }}:
+            originals.append(x)
+    values = []
+    for x in originals:
+{% if conds %}
+        if not ({{ conds|join(' and ') }}):
+            continue
+{% endif %}
+        y = {{ expr[-1] }}
+{% if 'mapped' in dist %}
+        if y in values:
+            continue
+{% endif %}
+        values.append(y)
+    if not values:
+        return {{ 'None' if e == 'none' else (e|int) }}
+    op = {{ op|pyrepr }}
+    acc = abs(values[0]) if op in ('gcd', 'lcm') else values[0]
+    for v in values[1:]:
+        if op == 'gcd':
+            acc = _gcd(acc, v)
+        elif op == 'lcm':
+            acc = 0 if acc == 0 or v == 0 else abs(acc * v) // _gcd(acc, v)
+        elif op == 'bit_and':
+            acc = acc & v
+        elif op == 'bit_or':
+            acc = acc | v
+        else:
+            acc = acc ^ v
+    return acc

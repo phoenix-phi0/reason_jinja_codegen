@@ -1,0 +1,60 @@
+{%- from 'composition.j2' import source_expr with context -%}
+{%- set outs = relations.rows('run_output', key) -%}
+{%- set out = outs[0][-1] if outs else 'encoded' -%}
+{%- set fmts = relations.rows('run_format', key) -%}
+{%- set fmt = fmts[0][-1] if fmts else 'char_count' -%}
+{%- set omit = relations.has('run_one', key, 'omit') -%}
+def {{ fname|default('solve') }}({{ (fparams|default(params))|join(', ') }}):
+    data = {{ source_expr(key) }}
+{% if out == 'decoded' %}
+    digits = '0123456789'
+    result = []
+    i = 0
+{% if fmt == 'count_char' %}
+    while i < len(data):
+        number = ''
+        while i < len(data) and data[i] in digits:
+            number += data[i]
+            i += 1
+        k = int(number) if number else 1
+        ch = data[i]
+        i += 1
+        for _ in range(k):
+            result.append(ch)
+{% else %}
+    while i < len(data):
+        ch = data[i]
+        i += 1
+        number = ''
+        while i < len(data) and data[i] in digits:
+            number += data[i]
+            i += 1
+        k = int(number) if number else 1
+        for _ in range(k):
+            result.append(ch)
+{% endif %}
+    return ''.join(result)
+{% else %}
+    runs = []
+    for ch in data:
+        if runs and runs[-1][0] == ch:
+            runs[-1][1] += 1
+        else:
+            runs.append([ch, 1])
+{% if out == 'pairs' %}
+    return runs
+{% elif out == 'run_count' %}
+    return len(runs)
+{% elif out == 'longest_run' %}
+    return max([r[1] for r in runs], default=0)
+{% else %}
+    text = ''
+    for ch, k in runs:
+{% if fmt == 'count_char' %}
+        text += ('' if ({{ omit }} and k == 1) else str(k)) + str(ch)
+{% else %}
+        text += str(ch) + ('' if ({{ omit }} and k == 1) else str(k))
+{% endif %}
+    return text
+{% endif %}
+{% endif %}

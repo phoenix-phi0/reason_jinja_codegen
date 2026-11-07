@@ -1,0 +1,50 @@
+{%- from 'composition.j2' import source_expr with context -%}
+{%- set params = item.params -%}
+{%- set COND = {
+  'even': 'x % 2 == 0', 'odd': 'x % 2 != 0', 'positive': 'x > 0', 'negative': 'x < 0',
+  'nonzero': 'x != 0', 'zero': 'x == 0',
+  'vowel': "x in 'aeiouAEIOU'", 'consonant': "x.isascii() and x.isalpha() and x not in 'aeiouAEIOU'",
+  'letter': 'x.isalpha()', 'ascii_letter': "x.isascii() and x.isalpha()", 'digit': 'x.isdigit()', 'upper': 'x.isupper()', 'lower': 'x.islower()',
+  'space': 'x.isspace()', 'alnum': 'x.isalnum()'} -%}
+{%- set CMP = {'ge': '>=', 'gt': '>', 'le': '<=', 'lt': '<'} -%}
+{%- set MAP = {'identity': 'x', 'square': 'x * x', 'abs': 'abs(x)', 'negate': '-x', 'to_int': 'int(x)',
+               'lower': 'x.lower()', 'upper': 'x.upper()'} -%}
+{%- set conds = [] -%}
+{%- for r in relations.rows('keep', key) %}{% set _ = conds.append(COND[r[-1]]) %}{% endfor -%}
+{%- for r in relations.rows('drop', key) %}{% set _ = conds.append('not (' ~ COND[r[-1]] ~ ')') %}{% endfor -%}
+{%- for r in relations.rows('remainder', key) %}{% set _ = conds.append('x % ' ~ (r[-2]|int) ~ ' == ' ~ (r[-1]|int)) %}{% endfor -%}
+{%- for r in relations.rows('bound', key) %}{% if r[-2].startswith('abs_') %}{% set _ = conds.append('abs(x) ' ~ CMP[r[-2][4:]] ~ ' ' ~ (r[-1]|int)) %}{% else %}{% set _ = conds.append('x ' ~ CMP[r[-2]] ~ ' ' ~ (r[-1]|int)) %}{% endif %}{% endfor -%}
+{%- set maps = relations.rows('map', key) -%}
+{%- set expr = [MAP[maps[0][-1] if maps else 'identity']] -%}
+{%- for r in relations.rows('floordiv', key) %}{% set _ = expr.append('(' ~ expr[-1] ~ ') // (' ~ (r[-1]|int) ~ ')') %}{% endfor -%}
+{%- for r in relations.rows('scale', key) %}{% set _ = expr.append('(' ~ expr[-1] ~ ') * (' ~ (r[-1]|int) ~ ')') %}{% endfor -%}
+{%- for r in relations.rows('add', key) %}{% set _ = expr.append('(' ~ expr[-1] ~ ') + (' ~ (r[-1]|int) ~ ')') %}{% endfor -%}
+{%- set dist = relations.rows('distinct', key)|map('last')|list -%}
+{%- set src = source_expr(key) -%}
+{%- set iterable = ('dict.fromkeys(' ~ src ~ ')') if 'original' in dist else src -%}
+{%- set rk = relations.rows('select_rank', key)[0] -%}
+{%- set kv = rk[2] -%}
+{%- set kexpr = kv if relations.has('arg', key, kv, 'int') else (kv|int) -%}
+{%- set e = relations.one('if_empty', key) -%}
+def {{ fname|default('solve') }}({{ (fparams|default(params))|join(', ') }}):
+    values = []
+    for x in {{ iterable }}:
+{% if conds %}
+        if not ({{ conds|join(' and ') }}):
+            continue
+{% endif %}
+        values.append({{ expr[-1] }})
+{% if 'mapped' in dist %}
+    unique = []
+    for v in values:
+        if v not in unique:
+            unique.append(v)
+    values = unique
+{% endif %}
+    k = {{ kexpr }}
+    if k < 1 or k > len(values):
+        return {{ 'None' if e == 'none' else (e|int) }}
+    remaining = list(values)
+    for _ in range(k - 1):
+        remaining.remove({{ 'max' if rk[1] == 'largest' else 'min' }}(remaining))
+    return {{ 'max' if rk[1] == 'largest' else 'min' }}(remaining)

@@ -1,0 +1,16 @@
+{%- from 'composition.j2' import source_expr with context -%}
+{%- set pv = relations.rows('pair_value', key)[0] -%}
+{%- set fl = relations.rows('result_floor', key) -%}
+{%- set cp = relations.rows('result_cap', key) -%}
+{%- macro bound_arg(r) -%}{{ r[1] if relations.has('arg', key, r[1], 'int') else (r[1]|int) }}{%- endmacro -%}
+def {{ fname|default('solve') }}({{ (fparams|default(params))|join(', ') }}):
+    best = pair_extreme(list({{ source_expr(key) }}), {{ pv[1]|pyrepr }}, {{ pv[2]|pyrepr }})
+    if best is None:
+        return {{ value(relations.one('if_empty', key)) }}
+{% if fl %}
+    best = max(best, {{ bound_arg(fl[0]) }})
+{% endif %}
+{% if cp %}
+    best = min(best, {{ bound_arg(cp[0]) }})
+{% endif %}
+    return best

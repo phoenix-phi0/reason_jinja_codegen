@@ -1,0 +1,8 @@
+{%- set disc = 'lifo' if relations.one('container_mode', key) == 'stack' else 'fifo' -%}
+{%- set e = relations.one('empty_answer', key) -%}
+{%- set empty = 'None' if e == 'none' else (e|int) -%}
+def solve({{ params|join(', ') }}):
+    ops = {{ relations.one('iterate', key) }}
+    kinds = [1 if op[0] == 'push' else (0 if op[0] == 'pop' else 2) for op in ops]
+    values = [op[1] if len(op) > 1 else 0 for op in ops]
+    return container_simulate(kinds, values, {{ disc|pyrepr }}, {{ relations.one('sim_form', key)|pyrepr }}, {{ empty }})

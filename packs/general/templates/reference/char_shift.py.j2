@@ -1,0 +1,15 @@
+{%- macro num(v) -%}{{ v if relations.has('arg', key, v, 'int') else (v|int) }}{%- endmacro -%}
+def solve({{ params|join(', ') }}):
+    kind = {{ relations.one('shift_kind', key)|pyrepr }}
+    amount = {{ num(relations.one('shift_by', key)) }}
+    if {{ relations.one('shift_dir', key) == 'backward' }}:
+        amount = -amount
+    spans = {'lower': [('a', 26)], 'upper': [('A', 26)], 'alpha': [('a', 26), ('A', 26)], 'digit': [('0', 10)]}[kind]
+    out = ''
+    for ch in {{ relations.one('iterate', key) }}:
+        done = ch
+        for start, size in spans:
+            if ord(start) <= ord(ch) < ord(start) + size:
+                done = chr(ord(start) + (ord(ch) - ord(start) + amount) % size)
+        out += done
+    return out

@@ -1,0 +1,3 @@
+{%- macro num(v) -%}{{ v if relations.has('arg', key, v, 'int') else (v|int) }}{%- endmacro -%}
+def solve({{ params|join(', ') }}):
+    return caesar_shift({{ relations.one('iterate', key) }}, {{ num(relations.one('shift_by', key)) }}, {{ relations.one('shift_kind', key)|pyrepr }}, {{ relations.one('shift_dir', key) == 'backward' }})

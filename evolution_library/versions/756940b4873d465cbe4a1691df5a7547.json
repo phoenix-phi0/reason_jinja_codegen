@@ -1,0 +1,26 @@
+{
+  "id": "756940b4873d465cbe4a1691df5a7547",
+  "status": "validated",
+  "candidate": {
+    "intent": "bubble_sort",
+    "vocabulary": {
+      "intent": [
+        "bubble_sort"
+      ],
+      "order": [
+        "ascending"
+      ],
+      "input": [
+        "int_list"
+      ]
+    },
+    "rule": "evolved(P,bubble_sort) :- intent(P,bubble_sort), order(P,ascending), input(P,int_list).",
+    "source": "def solve(nums):\n    a = list(nums)\n    n = len(a)\n    for i in range(n):\n        for j in range(n - 1 - i):\n            if a[j] > a[j + 1]:\n                a[j], a[j + 1] = a[j + 1], a[j]\n    return a"
+  },
+  "validation": {
+    "source": "def solve(nums):\n    a = list(nums)\n    n = len(a)\n    for i in range(n):\n        for j in range(n - 1 - i):\n            if a[j] > a[j + 1]:\n                a[j], a[j + 1] = (a[j + 1], a[j])\n    return a\n",
+    "tests": 80,
+    "rule_selected": true,
+    "checks": "finite tests, not proof"
+  }
+}

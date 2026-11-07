@@ -1,0 +1,70 @@
+{% raw %}
+def solve(grid):
+    R = len(grid)
+    C = len(grid[0]) if R else 0
+    full = 0
+    start = -1
+    for r in range(R):
+        row = grid[r]
+        for c in range(C):
+            ch = row[c]
+            if ch == '@':
+                start = r * C + c
+            elif 'a' <= ch <= 'f':
+                full |= 1 << (ord(ch) - 97)
+    if full == 0:
+        return 0
+    if start < 0:
+        return -1
+
+    # cell codes: -1 wall, 0 floor, 1..6 key (bit idx+1), 7..12 lock
+    cells = []
+    for r in range(R):
+        row = grid[r]
+        for c in range(C):
+            ch = row[c]
+            if ch == '#':
+                cells.append(-1)
+            elif 'a' <= ch <= 'f':
+                cells.append(1 + ord(ch) - 97)
+            elif 'A' <= ch <= 'F':
+                cells.append(7 + ord(ch) - 65)
+            else:
+                cells.append(0)
+
+    S = 64
+    seen = bytearray(R * C * S)
+    seen[start * S] = 1
+    frontier = [start * S]
+    dist = 0
+    while frontier:
+        dist += 1
+        nxt = []
+        for st in frontier:
+            pos = st >> 6
+            mask = st & 63
+            r, c = divmod(pos, C)
+            for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                nr = r + dr
+                nc = c + dc
+                if nr < 0 or nr >= R or nc < 0 or nc >= C:
+                    continue
+                np_ = nr * C + nc
+                code = cells[np_]
+                if code < 0:
+                    continue
+                nm = mask
+                if code >= 7:
+                    if not (mask >> (code - 7)) & 1:
+                        continue
+                elif code >= 1:
+                    nm = mask | (1 << (code - 1))
+                    if nm == full:
+                        return dist
+                ns = np_ * S + nm
+                if not seen[ns]:
+                    seen[ns] = 1
+                    nxt.append(ns)
+        frontier = nxt
+    return -1
+{% endraw %}

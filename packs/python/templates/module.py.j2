@@ -1,0 +1,36 @@
+{% if item.docstring is defined %}
+{{ item.docstring|pyrepr }}
+{% endif %}
+{% for statement in item.get('imports', []) %}
+{{ statement }}
+{% endfor %}
+{% for name, value in item.get('constants', {}).items() %}
+{{ name }} = {{ value|pyrepr }}
+{% endfor %}
+{% for function in item.get('functions', []) %}
+{% for decorator in function.get('decorators', []) %}
+@{{ decorator }}
+{% endfor %}
+{% if relations.has('async_function', key, function.name) %}async {% endif %}def {{ function.name }}({{ function.get('parameters', [])|join(', ') }}){% if function.get('returns') %} -> {{ function.returns }}{% endif %}:
+{{ function.get('body', 'pass')|indent(4, true) }}
+
+{% endfor %}
+{% for class in item.get('classes', []) %}
+{% for decorator in class.get('decorators', []) %}
+@{{ decorator }}
+{% endfor %}
+class {{ class.name }}{% if class.get('bases') %}({{ class.bases|join(', ') }}){% endif %}:
+{% for name, value in class.get('attributes', {}).items() %}
+    {{ name }} = {{ value|pyrepr }}
+{% endfor %}
+{% for method in class.get('methods', []) %}
+{% for decorator in method.get('decorators', []) %}
+    @{{ decorator }}
+{% endfor %}
+    {% if method.get('async', false) %}async {% endif %}def {{ method.name }}({{ method.get('parameters', ['self'])|join(', ') }}){% if method.get('returns') %} -> {{ method.returns }}{% endif %}:
+{{ method.get('body', 'pass')|indent(8, true) }}
+
+{% endfor %}
+    pass
+
+{% endfor %}

@@ -1,0 +1,319 @@
+% Composition: implicit sources, stage chains, condition trees, backward-chaining tables. Fixed file.
+% Driver facts (general.grouped_facts): for a staged problem P the stage I is a sub-problem Q (key P.I):
+%   stage(P,I,Schema)      declared by the translator
+%   substage(P,I,Q)        parent(Q,P)    last_stage(P,I)    before(P,J,I) for J < I
+%   stage_ref(Q,"stageJ",J)  stage_var(Q,J,"_sJ")  for every earlier stage J
+% The facts that describe stage I are namespaced simply by being keyed on Q, so every rule of the pack applies
+% to a stage unchanged; a single-stage problem keeps the flat form (keyed on P itself).
+% source/4 and cond/5, expr/5 carry a "-" in an unused trailing argument (the driver pads it).
+
+% ---------- implicit sources: every source gives the stage a (virtual) iterable and its type
+iterate(P,A) :- source(P,param,A,Y).
+% a range source in a knapsack-shaped problem (target + count/min/feasible question) is its item list (range_steps)
+item_source(P) :- source(P,range,L,H), target(P,T), ask(P,Q), knap_question(Q).
+items_range(P,L,H) :- source(P,range,L,H), item_source(P).
+iterate(P,"$range") :- source(P,range,L,H), not item_source(P).
+arg(P,"$range",int_list) :- source(P,range,L,H), not item_source(P).
+iterate(P,"$digits") :- source(P,digits,X,Y).
+arg(P,"$digits",int_list) :- source(P,digits,X,Y).
+iterate(P,"$chars") :- source(P,chars,X,Y).
+arg(P,"$chars",string) :- source(P,chars,X,Y).
+iterate(P,V) :- source(P,stage,J,Y), stage_var(P,J,V).
+arg(P,V,T) :- parent(P,R), stage_var(P,J,V), stage_out(R,J,T).
+% schemas whose input is an iterated sequence can read any source kind (sequence-input schemas of stage chains)
+source_schema(seq_fold) :- .
+source_schema(seq_rank) :- .
+source_schema(seq_reduce) :- .
+source_schema(palindrome_check) :- .
+source_schema(run_encode) :- .
+source_schema(pair_count) :- .
+source_schema(pair_extreme) :- .
+source_schema(bracket_match) :- .
+source_schema(interval_scan) :- .
+takes_source(P) :- schema(P,S), source_schema(S).
+error(two_sources,P) :- iterate(P,A), iterate(P,B), A != B.
+error(source_needs_seq_fold,P) :- source(P,range,L,H), not takes_source(P), not item_source(P).
+error(source_needs_seq_fold,P) :- source(P,digits,X,Y), not takes_source(P).
+error(source_needs_seq_fold,P) :- source(P,chars,X,Y), not takes_source(P).
+error(source_needs_seq_fold,P) :- source(P,stage,J,Y), not takes_source(P).
+error(range_needs_upper_bound,P) :- source(P,range,L,"-").
+error(range_param_not_int,P) :- source(P,range,L,H), arg(P,L,K), K != int.
+error(range_param_not_int,P) :- source(P,range,L,H), arg(P,H,K), K != int.
+known_ref(P,X) :- arg(P,X,T).
+known_ref(P,X) :- stage_ref(P,X,J).
+error(unknown_source_ref,P) :- source(P,digits,X,Y), not known_ref(P,X).
+error(unknown_source_ref,P) :- source(P,chars,X,Y), not known_ref(P,X).
+error(digits_of_non_int,P) :- source(P,digits,X,Y), arg(P,X,K), K != int.
+error(chars_of_non_string,P) :- source(P,chars,X,Y), arg(P,X,K), K != string.
+
+% ---------- stage chains
+schema(P,staged) :- substage(P,I,Q).
+stage_out(P,I,T) :- substage(P,I,Q), answer_type(Q,T).
+answer_type(P,T) :- schema(P,staged), last_stage(P,I), stage_out(P,I,T).
+nullable(P) :- last_stage(P,I), substage(P,I,Q), nullable(Q).
+uses(P,F) :- substage(P,I,Q), uses(Q,F).
+error(stage_schema_mismatch,P) :- stage(P,I,S), substage(P,I,Q), not schema(Q,S).
+error(stage_no_schema,P) :- substage(P,I,Q), not has_schema(Q).
+src_stage(P,I,J,stage) :- substage(P,I,Q), source(Q,stage,J,Y).
+src_stage(P,I,J,digits) :- substage(P,I,Q), source(Q,digits,X,Y), stage_ref(Q,X,J).
+src_stage(P,I,J,chars) :- substage(P,I,Q), source(Q,chars,X,Y), stage_ref(Q,X,J).
+error(stage_not_earlier,P) :- src_stage(P,I,J,K), not before(P,J,I).
+error(stage_type_mismatch,P) :- src_stage(P,I,J,K), stage_out(P,J,T), not consumes(K,T).
+% a schema with several inputs (knapsack: items + target) or a range bound may read an earlier stage too (items / target written stageJ
+% are renamed to the stage variable _sJ by the driver)
+src_stage(P,I,J,items) :- substage(P,I,Q), items(Q,V), stage_var(Q,J,V).
+src_stage(P,I,J,target) :- substage(P,I,Q), target(Q,V), stage_var(Q,J,V).
+src_stage(P,I,J,bound) :- substage(P,I,Q), bound(Q,O,N), stage_ref(Q,N,J).
+error(stage_ref_bound_needs_seq_fold,P) :- bound(P,O,N), stage_ref(P,N,J), not is_seq_fold(P).
+src_stage(P,I,J,range_bound) :- substage(P,I,Q), source(Q,range,L,H), stage_ref(Q,L,J).
+src_stage(P,I,J,range_bound) :- substage(P,I,Q), source(Q,range,L,H), stage_ref(Q,H,J).
+has_stage_input(P,J) :- src_stage(P,I,J,K).
+error(stage_output_unused,P) :- substage(P,J,Q), not last_stage(P,J), not has_stage_input(P,J).
+
+% what each source kind accepts, what a seq_fold stage produces (used by the checks above and by general.chains)
+consumes(items,int_list) :- .
+consumes(target,int) :- .
+consumes(range_bound,int) :- .
+consumes(bound,int) :- .
+consumes(digits,int) :- .
+consumes(chars,string) :- .
+consumes(range,int) :- .
+consumes(stage,int_list) :- .
+consumes(stage,string_list) :- .
+consumes(stage,string) :- .
+consumes(param,int_list) :- .
+consumes(param,string_list) :- .
+consumes(param,string) :- .
+source_elem(range,int) :- .
+source_elem(digits,int) :- .
+source_elem(chars,string) :- .
+elem_of(int_list,int) :- .
+elem_of(string_list,string) :- .
+elem_of(string,string) :- .
+produces(seq_fold,sum,int) :- .
+produces(seq_fold,count,int) :- .
+produces(seq_fold,product,int) :- .
+produces(seq_fold,max,int) :- .
+produces(seq_fold,min,int) :- .
+produces(seq_fold,distinct_count,int) :- .
+produces(seq_fold,join,string) :- .
+produces(seq_fold,is_palindrome,bool) :- .
+produces(seq_fold,list,int_list) :- .
+produces(seq_fold,list,string_list) :- .
+needs_elem(sum,int) :- .
+needs_elem(product,int) :- .
+needs_elem(max,int) :- .
+needs_elem(min,int) :- .
+needs_elem(join,string) :- .
+needs_elem(list,int) :- .
+needs_elem(list,string) :- .
+
+% ---------- is_palindrome aggregate (a bool; the check is the library function sequence_palindrome)
+answer_type(P,bool) :- schema(P,seq_fold), aggregate(P,is_palindrome).
+candidate(P,sequence_palindrome) :- schema(P,seq_fold), aggregate(P,is_palindrome).
+
+% ---------- condition trees for seq_fold filters
+node(P,N) :- cond(P,N,K,A,B).
+node(P,N) :- expr(P,N,O,X,Y).
+error(node_defined_twice,P) :- cond(P,N,K1,A1,B1), cond(P,N,K2,A2,B2), K1 != K2.
+error(node_defined_twice,P) :- cond(P,N,K1,A1,B1), cond(P,N,K2,A2,B2), A1 != A2.
+error(node_defined_twice,P) :- cond(P,N,K1,A1,B1), cond(P,N,K2,A2,B2), B1 != B2.
+error(node_defined_twice,P) :- expr(P,N,O1,X1,Y1), expr(P,N,O2,X2,Y2), O1 != O2.
+error(node_defined_twice,P) :- expr(P,N,O1,X1,Y1), expr(P,N,O2,X2,Y2), X1 != X2.
+error(node_defined_twice,P) :- expr(P,N,O1,X1,Y1), expr(P,N,O2,X2,Y2), Y1 != Y2.
+error(node_defined_twice,P) :- cond(P,N,K,A,B), expr(P,N,O,X,Y).
+child(P,E,X) :- expr(P,E,O,X,Y).
+child(P,E,Y) :- expr(P,E,O,X,Y), Y != "-".
+error(not_takes_one_operand,P) :- expr(P,E,not,X,Y), Y != "-".
+error(binary_takes_two_operands,P) :- expr(P,E,and,X,"-").
+error(binary_takes_two_operands,P) :- expr(P,E,or,X,"-").
+error(undefined_operand,P) :- child(P,E,X), not node(P,X).
+reach(P,A,B) :- child(P,A,B).
+reach(P,A,C) :- reach(P,A,B), child(P,B,C).
+error(condition_cycle,P) :- reach(P,A,A).
+has_filter(P) :- filter(P,E).
+error(two_filters,P) :- filter(P,A), filter(P,B), A != B.
+error(undefined_filter,P) :- filter(P,E), not node(P,E).
+error(nodes_without_filter,P) :- node(P,N), not has_filter(P).
+used_node(P,N) :- filter(P,N).
+used_node(P,C) :- used_node(P,E), child(P,E,C).
+error(unused_node,P) :- node(P,N), not used_node(P,N).
+error(filter_needs_seq_fold,P) :- filter(P,E), not is_seq_fold(P).
+uses_cond(P,C) :- cond(P,N,keep,C,B).
+uses_cond(P,C) :- cond(P,N,drop,C,B).
+error(cond_numeric_on_characters,P) :- cond(P,N,bound,A,B), iterate(P,S), arg(P,S,string).
+error(cond_numeric_on_characters,P) :- cond(P,N,remainder,A,B), iterate(P,S), arg(P,S,string).
+error(cond_remainder_zero,P) :- cond(P,N,remainder,"0",B).
+
+% ---------- sizes of virtual sources and of stage outputs (costs.dl reads vsize through size_class / has_size)
+% range LO HI has the size class of HI (an int parameter's magnitude, an integer literal's class given by the driver as a size fact, or the
+% magnitude of an earlier stage's output); digits of an integer are tiny (digits of a stage that multiplies: medium); chars of S has the size of S.
+vsize(P,"$range",S) :- source(P,range,L,H), not item_source(P), size(P,H,S).
+vsize(P,"$range",S) :- source(P,range,L,H), not item_source(P), stage_ref(P,H,J), parent(P,R), out_size(R,J,S).
+big_digits(P) :- source(P,digits,X,Y), stage_ref(P,X,J), parent(P,R), substage(R,J,Q), aggregate(Q,product).
+vsize(P,"$digits",tiny) :- source(P,digits,X,Y), not big_digits(P).
+vsize(P,"$digits",medium) :- big_digits(P).
+vsize(P,"$chars",S) :- source(P,chars,X,Y), size(P,X,S).
+vsize(P,"$chars",S) :- source(P,chars,X,Y), stage_ref(P,X,J), parent(P,R), out_size(R,J,S).
+vsize(P,V,S) :- parent(P,R), stage_var(P,J,V), out_size(R,J,S).
+iter_size(Q,C) :- iterate(Q,A), size(Q,A,C).
+iter_size(Q,C) :- iterate(Q,A), vsize(Q,A,C).
+seq_type(int_list) :- .
+seq_type(string_list) :- .
+seq_type(string) :- .
+seq_type(list_of_lists) :- .
+counting_out(Q) :- aggregate(Q,count).
+counting_out(Q) :- aggregate(Q,distinct_count).
+counting_out(Q) :- run_output(Q,run_count).
+counting_out(Q) :- run_output(Q,longest_run).
+counting_out(Q) :- ask(Q,max_overlap), not has_at_least(Q).
+counting_out(Q) :- interval_output(Q,merged_count).
+% a stage that outputs a sequence outputs at most as many elements as it reads; a counting stage outputs at most that many; any other int
+% output (sum, product, max...) has unknown magnitude: vast
+out_size(R,J,C) :- substage(R,J,Q), answer_type(Q,T), seq_type(T), iter_size(Q,C).
+out_size(R,J,C) :- substage(R,J,Q), counting_out(Q), iter_size(Q,C).
+out_size(R,J,vast) :- substage(R,J,Q), answer_type(Q,int), not counting_out(Q), not digit_bounded(Q).
+% the sum of the digits of an integer parameter is at most 9 per digit; their max / min at most 9
+digit_bounded(Q) :- aggregate(Q,sum), iterate(Q,"$digits"), not big_digits(Q), not changes_value(Q).
+digit_bounded(Q) :- aggregate(Q,max), iterate(Q,"$digits"), not changes_value(Q).
+digit_bounded(Q) :- aggregate(Q,min), iterate(Q,"$digits"), not changes_value(Q).
+out_size(R,J,small) :- substage(R,J,Q), aggregate(Q,sum), digit_bounded(Q).
+out_size(R,J,tiny) :- substage(R,J,Q), aggregate(Q,max), digit_bounded(Q).
+out_size(R,J,tiny) :- substage(R,J,Q), aggregate(Q,min), digit_bounded(Q).
+% an enormous range is never walked element by element in Python
+error(too_slow,P) :- vsize(P,"$range",vast).
+
+% ---------- what a stage's output guarantees about its elements (for the next stage's preconditions)
+guaranteed(P,"$range",distinct) :- source(P,range,L,H), not item_source(P).
+changes_value(Q) :- map(Q,F), F != identity.
+changes_value(Q) :- floordiv(Q,N).
+changes_value(Q) :- scale(Q,N).
+changes_value(Q) :- add(Q,N).
+passes_values(Q) :- schema(Q,seq_fold), aggregate(Q,list), not changes_value(Q).
+guaranteed(P,V,C) :- parent(P,R), stage_var(P,J,V), substage(R,J,Q), passes_values(Q), iterate(Q,A), guaranteed(Q,A,C).
+guaranteed(P,V,positive) :- parent(P,R), stage_var(P,J,V), substage(R,J,Q), passes_values(Q), keep(Q,positive).
+guaranteed(P,V,distinct) :- parent(P,R), stage_var(P,J,V), substage(R,J,Q), passes_values(Q), distinct(Q,S).
+
+% ---------- stage tables of the sequence-input and knapsack schemas (read by general.chains for the backward-chaining hints)
+% stage_takes(Schema, Variant, InType, OutType): the schema, asked as Variant, reads one sequence value of type InType and outputs OutType
+stage_takes(seq_rank,kth,int_list,int) :- .
+stage_takes(seq_reduce,fold,int_list,int) :- .
+stage_takes(palindrome_check,check,int_list,bool) :- .
+stage_takes(palindrome_check,check,string_list,bool) :- .
+stage_takes(palindrome_check,check,string,bool) :- .
+stage_takes(palindrome_check,mismatch_count,int_list,int) :- .
+stage_takes(run_encode,encoded,string,string) :- .
+stage_takes(run_encode,pairs,string,list_of_lists) :- .
+stage_takes(run_encode,run_count,string,int) :- .
+stage_takes(run_encode,longest_run,string,int) :- .
+stage_takes(pair_count,count,int_list,int) :- .
+stage_takes(pair_count,exists,int_list,bool) :- .
+stage_takes(pair_extreme,best_pair,int_list,int) :- .
+stage_takes(bracket_match,balanced,string,bool) :- .
+stage_takes(bracket_match,max_depth,string,int) :- .
+stage_takes(interval_scan,max_overlap,interval_list,int) :- .
+stage_takes(interval_scan,covered_length,interval_list,int) :- .
+stage_takes(interval_scan,merge,interval_list,list_of_lists) :- .
+% stage_takes2(Schema, Variant, ItemsType, TargetType, OutType): two inputs (knapsack: the items and the target)
+stage_takes2(knapsack,count_ways,int_list,int,int) :- .
+stage_takes2(knapsack,min_count,int_list,int,int) :- .
+stage_takes2(knapsack,feasible,int_list,int,bool) :- .
+% variant_ask(Schema, Variant, Value): the ask fact that selects the variant (variants without one are selected by other facts)
+variant_ask(pair_count,count,count_pairs) :- .
+variant_ask(pair_count,exists,count_pairs) :- .
+variant_ask(pair_extreme,best_pair,best_pair) :- .
+variant_ask(bracket_match,balanced,balanced_brackets) :- .
+variant_ask(bracket_match,max_depth,balanced_brackets) :- .
+variant_ask(run_encode,encoded,run_length) :- .
+variant_ask(run_encode,pairs,run_length) :- .
+variant_ask(run_encode,run_count,run_length) :- .
+variant_ask(run_encode,longest_run,run_length) :- .
+variant_ask(palindrome_check,check,palindrome_check) :- .
+variant_ask(palindrome_check,mismatch_count,palindrome_check) :- .
+variant_ask(interval_scan,max_overlap,max_overlap) :- .
+variant_ask(interval_scan,covered_length,covered_length) :- .
+variant_ask(interval_scan,merge,merge_intervals) :- .
+variant_ask(knapsack,count_ways,count_ways) :- .
+variant_ask(knapsack,min_count,min_count) :- .
+variant_ask(knapsack,feasible,feasible) :- .
+% schema_fact(Schema, Predicate): the vocabulary predicates that describe a stage of that schema (used to rank chains by how many of the
+% problem's own facts the first stage already satisfies)
+element_fact(keep) :- .
+element_fact(drop) :- .
+element_fact(remainder) :- .
+element_fact(bound) :- .
+element_fact(map) :- .
+element_fact(floordiv) :- .
+element_fact(scale) :- .
+element_fact(add) :- .
+element_fact(distinct) :- .
+element_fact(if_empty) :- .
+element_fact(cond) :- .
+element_fact(expr) :- .
+element_fact(filter) :- .
+element_fact(iterate) :- .
+element_fact(source) :- .
+schema_fact(S,F) :- source_schema(S), element_fact(F), S != pair_count, S != pair_extreme, S != run_encode, S != bracket_match, S != interval_scan.
+schema_fact(seq_fold,aggregate) :- .
+schema_fact(seq_fold,digit_sum_test) :- .
+schema_fact(seq_fold,digit_sum_bound) :- .
+schema_fact(seq_rank,select_rank) :- .
+schema_fact(seq_reduce,fold) :- .
+schema_fact(palindrome_check,ask) :- .
+schema_fact(palindrome_check,palindrome_output) :- .
+schema_fact(palindrome_check,palindrome_tolerance) :- .
+schema_fact(run_encode,iterate) :- .
+schema_fact(run_encode,source) :- .
+schema_fact(run_encode,ask) :- .
+schema_fact(run_encode,run_output) :- .
+schema_fact(run_encode,run_format) :- .
+schema_fact(run_encode,run_one) :- .
+schema_fact(pair_count,iterate) :- .
+schema_fact(pair_count,source) :- .
+schema_fact(pair_count,ask) :- .
+schema_fact(pair_count,pair_test) :- .
+schema_fact(pair_count,pair_bound) :- .
+schema_fact(pair_count,pair_output) :- .
+schema_fact(pair_extreme,iterate) :- .
+schema_fact(pair_extreme,source) :- .
+schema_fact(pair_extreme,ask) :- .
+schema_fact(pair_extreme,pair_value) :- .
+schema_fact(pair_extreme,if_empty) :- .
+schema_fact(bracket_match,iterate) :- .
+schema_fact(bracket_match,source) :- .
+schema_fact(bracket_match,ask) :- .
+schema_fact(bracket_match,bracket_pair) :- .
+schema_fact(bracket_match,bracket_output) :- .
+schema_fact(interval_scan,iterate) :- .
+schema_fact(interval_scan,source) :- .
+schema_fact(interval_scan,ask) :- .
+schema_fact(interval_scan,interval_ends) :- .
+schema_fact(interval_scan,interval_gap) :- .
+schema_fact(interval_scan,interval_output) :- .
+schema_fact(interval_scan,min_depth) :- .
+schema_fact(interval_scan,max_depth) :- .
+schema_fact(interval_scan,at_least) :- .
+schema_fact(interval_scan,pair_output) :- .
+schema_fact(interval_scan,pair_relation) :- .
+schema_fact(knapsack,items) :- .
+schema_fact(knapsack,target) :- .
+schema_fact(knapsack,ask) :- .
+schema_fact(knapsack,use) :- .
+schema_fact(knapsack,order) :- .
+schema_fact(knapsack,terms) :- .
+schema_fact(knapsack,modulo) :- .
+schema_fact(knapsack,unreachable) :- .
+
+% ---------- element facts on a schema that never reads them (they would be ignored silently: a stage chain was probably meant); bound and floordiv have their own rules in learned.dl
+element_schema(seq_fold) :- .
+element_schema(seq_rank) :- .
+element_schema(seq_reduce) :- .
+element_schema(palindrome_check) :- .
+element_used(P) :- keep(P,C).
+element_used(P) :- drop(P,C).
+element_used(P) :- remainder(P,M,R).
+element_used(P) :- map(P,F).
+element_used(P) :- scale(P,N).
+element_used(P) :- add(P,N).
+element_used(P) :- distinct(P,S).
+error(element_fact_ignored,P) :- schema(P,S), not element_schema(S), element_used(P).

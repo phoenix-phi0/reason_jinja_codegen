@@ -1,0 +1,4 @@
+{%- macro num(v) -%}{{ v if relations.has('arg', key, v, 'int') else (v|int) }}{%- endmacro -%}
+{%- set nof = relations.rows('number_of', key)[0] -%}
+def solve({{ params|join(', ') }}):
+    return number_digits({{ nof[2] }}, {{ nof[1]|pyrepr }}, {{ num(relations.one('number_base_val', key)) }}, {{ relations.one('digit_form', key)|pyrepr }})

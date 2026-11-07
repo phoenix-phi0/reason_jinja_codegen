@@ -1,0 +1,26 @@
+{% raw %}
+def solve(dims):
+    MOD = 1000000007
+    n = len(dims) - 1
+    INF = float("inf")
+    c = [[0] * n for _ in range(n)]
+    w = [[1] * n for _ in range(n)]
+    for length in range(2, n + 1):
+        for i in range(0, n - length + 1):
+            j = i + length - 1
+            best = INF
+            cnt = 0
+            dij = dims[i] * dims[j + 1]
+            ci = c[i]
+            wi = w[i]
+            for k in range(i, j):
+                v = ci[k] + c[k + 1][j] + dij * dims[k + 1]
+                if v < best:
+                    best = v
+                    cnt = wi[k] * w[k + 1][j]
+                elif v == best:
+                    cnt += wi[k] * w[k + 1][j]
+            c[i][j] = best
+            w[i][j] = cnt % MOD
+    return [c[0][n - 1], w[0][n - 1] % MOD]
+{% endraw %}

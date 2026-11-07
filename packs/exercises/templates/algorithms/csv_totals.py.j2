@@ -1,0 +1,10 @@
+import csv
+import io
+from decimal import Decimal
+
+def solve(text):
+    totals = {}
+    for row in csv.DictReader(io.StringIO(text)):
+        key = row['category']
+        totals[key] = totals.get(key, Decimal(0)) + Decimal(row['amount'])
+    return totals

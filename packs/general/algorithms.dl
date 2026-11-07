@@ -1,0 +1,69 @@
+% Which library functions could implement a problem: candidate(P,F). costs.dl then keeps the feasible ones
+% (declared complexity versus input sizes) and picks the fastest per role as uses(P,F).
+
+% grids
+candidate(P,grid_component_sizes) :- schema(P,grid_components).
+candidate(P,grid_shortest_path) :- schema(P,grid_bfs).
+candidate(P,grid_find) :- schema(P,grid_bfs), start_at(P,char,C).
+candidate(P,grid_find) :- schema(P,grid_bfs), goal_at(P,char,C).
+
+% knapsack
+knap_terms(P) :- schema(P,knapsack), terms(P,M,A).
+candidate(P,knap_terms_table) :- knap_terms(P).
+candidate(P,knap_min_count) :- schema(P,knapsack), ask(P,min_count), not knap_terms(P).
+candidate(P,knap_count_ways) :- schema(P,knapsack), ask(P,count_ways), not knap_terms(P).
+candidate(P,knap_feasible) :- schema(P,knapsack), ask(P,feasible), not knap_terms(P).
+
+% intervals
+candidate(P,interval_max_overlap) :- schema(P,interval_scan), ask(P,max_overlap).
+candidate(P,interval_merge) :- schema(P,interval_scan), ask(P,merge_intervals).
+candidate(P,interval_covered_length) :- schema(P,interval_scan), ask(P,covered_length).
+candidate(P,interval_overlapping_pairs) :- schema(P,interval_scan), ask(P,overlap_pairs).
+
+% pair counting: the specialised functions apply to one test or one bound; brute force applies always
+pc_test(P) :- schema(P,pair_count), pair_test(P,O,M,R).
+pc_bound(P) :- schema(P,pair_count), pair_bound(P,O,C,N).
+residue_op(sum) :- .
+residue_op(difference) :- .
+candidate(P,count_pairs_residue) :- pair_test(P,O,M,R), residue_op(O), pc_test(P), not pc_bound(P).
+candidate(P,count_pairs_residue) :- pair_test(P,abs_difference,M,"0"), pc_test(P), not pc_bound(P).
+candidate(P,count_pairs_product_residue) :- pair_test(P,product,M,R), pc_test(P), not pc_bound(P).
+candidate(P,count_pairs_difference_bound) :- pair_bound(P,difference,C,N), pc_bound(P), not pc_test(P).
+candidate(P,count_pairs_abs_difference_bound) :- pair_bound(P,abs_difference,C,N), pc_bound(P), not pc_test(P).
+candidate(P,count_pairs_sum_bound) :- pair_bound(P,sum,C,N), pc_bound(P), not pc_test(P).
+candidate(P,count_pairs_brute) :- schema(P,pair_count).
+
+% sequence folds with digit-sum filters
+candidate(P,digit_sums) :- schema(P,seq_fold), digit_sum_test(P,M,R).
+candidate(P,digit_sums) :- schema(P,seq_fold), digit_sum_bound(P,O,N).
+
+candidate(P,bracket_scan) :- schema(P,bracket_match).
+candidate(P,kth_value) :- schema(P,seq_rank).
+
+% run-length: encoding / grouping, or decoding when run_output is decoded
+run_decode(P) :- schema(P,run_encode), run_output(P,decoded).
+candidate(P,run_length_encode) :- schema(P,run_encode), not run_decode(P).
+candidate(P,run_length_decode) :- run_decode(P).
+answer_type(P,string) :- run_decode(P).
+
+candidate(P,fold_integers) :- schema(P,seq_reduce).
+candidate(P,matrix_diagonal_sums) :- schema(P,matrix_diagonals).
+candidate(P,matrix_reorient) :- schema(P,matrix_transform).
+
+% queue / stack simulation
+candidate(P,container_simulate) :- schema(P,op_simulation).
+
+% best (largest / smallest) value of a pair expression over positions i < j
+candidate(P,pair_extreme) :- schema(P,pair_extreme).
+
+% palindrome check / mismatch count of the filtered sequence
+candidate(P,sequence_palindrome) :- schema(P,palindrome_check).
+
+% calendar date arithmetic (constant time)
+candidate(P,date_offset) :- schema(P,date_calc).
+
+% count / sum of the integers of a range selected by a divisibility rule list (constant time)
+candidate(P,count_rule_range) :- schema(P,range_count).
+
+% naming-style conversion of a string (snake / kebab / camel / pascal / ...)
+candidate(P,case_convert) :- schema(P,case_convert).

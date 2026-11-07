@@ -1,0 +1,4 @@
+{%- set outs = relations.rows('matrix_op', key) -%}
+{%- set form = outs[0][-1] if outs else 'transpose' -%}
+def solve({{ params|join(', ') }}):
+    return matrix_reorient({{ relations.one('iterate', key) }}, {{ form|pyrepr }})

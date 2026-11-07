@@ -1,0 +1,218 @@
+[
+ {
+  "id": "factorial_digit_sum",
+  "signature": "solve(n)",
+  "statement": "Return the sum of the decimal digits of n! (n factorial; 0! = 1).",
+  "tests": [
+   {
+    "args": [
+     0
+    ],
+    "expected": 1
+   },
+   {
+    "args": [
+     1
+    ],
+    "expected": 1
+   },
+   {
+    "args": [
+     5
+    ],
+    "expected": 3
+   },
+   {
+    "args": [
+     10
+    ],
+    "expected": 27
+   },
+   {
+    "args": [
+     20
+    ],
+    "expected": 54
+   },
+   {
+    "args": [
+     50
+    ],
+    "expected": 216
+   },
+   {
+    "args": [
+     100
+    ],
+    "expected": 648
+   }
+  ]
+ },
+ {
+  "id": "leap_year_count",
+  "signature": "solve(lo, hi)",
+  "statement": "Return how many years y with lo <= y <= hi are leap years (divisible by 4, except multiples of 100 unless also multiples of 400).",
+  "tests": [
+   {
+    "args": [
+     1996,
+     2004
+    ],
+    "expected": 3
+   },
+   {
+    "args": [
+     1900,
+     1900
+    ],
+    "expected": 0
+   },
+   {
+    "args": [
+     1900,
+     2000
+    ],
+    "expected": 25
+   },
+   {
+    "args": [
+     2000,
+     2000
+    ],
+    "expected": 1
+   },
+   {
+    "args": [
+     1,
+     400
+    ],
+    "expected": 97
+   },
+   {
+    "args": [
+     2001,
+     2003
+    ],
+    "expected": 0
+   },
+   {
+    "args": [
+     1,
+     3000
+    ],
+    "expected": 727
+   }
+  ]
+ },
+ {
+  "id": "relaxed_palindrome",
+  "signature": "solve(s)",
+  "statement": "Return True if s reads the same forwards and backwards when only letters and digits are kept and case is ignored.",
+  "tests": [
+   {
+    "args": [
+     "A man, a plan, a canal: Panama"
+    ],
+    "expected": true
+   },
+   {
+    "args": [
+     "race a car"
+    ],
+    "expected": false
+   },
+   {
+    "args": [
+     ""
+    ],
+    "expected": true
+   },
+   {
+    "args": [
+     "  "
+    ],
+    "expected": true
+   },
+   {
+    "args": [
+     "No 'x' in Nixon"
+    ],
+    "expected": true
+   },
+   {
+    "args": [
+     "ab_a"
+    ],
+    "expected": true
+   },
+   {
+    "args": [
+     "0P"
+    ],
+    "expected": false
+   },
+   {
+    "args": [
+     "abc"
+    ],
+    "expected": false
+   }
+  ]
+ },
+ {
+  "id": "frog_jumps",
+  "signature": "solve(n, k)",
+  "statement": "A frog on step 0 jumps 1..k steps at a time. Return the number of distinct ordered jump sequences that land exactly on step n.",
+  "tests": [
+   {
+    "args": [
+     0,
+     3
+    ],
+    "expected": 1
+   },
+   {
+    "args": [
+     1,
+     1
+    ],
+    "expected": 1
+   },
+   {
+    "args": [
+     4,
+     2
+    ],
+    "expected": 5
+   },
+   {
+    "args": [
+     5,
+     3
+    ],
+    "expected": 13
+   },
+   {
+    "args": [
+     10,
+     4
+    ],
+    "expected": 401
+   },
+   {
+    "args": [
+     20,
+     5
+    ],
+    "expected": 400096
+   },
+   {
+    "args": [
+     7,
+     7
+    ],
+    "expected": 64
+   }
+  ]
+ }
+]

@@ -1,0 +1,22 @@
+{%- macro num(v) -%}{{ v if relations.has('arg', key, v, 'int') else (v|int) }}{%- endmacro -%}
+{%- set form = relations.one('circle_form', key) -%}
+{%- set people_n = relations.one('circle_size', key) -%}
+{%- set step = num(relations.one('circle_step', key)) -%}
+{%- set base = relations.one('circle_base', key)|int -%}
+{%- set begin = num(relations.one('circle_from', key)) -%}
+def solve({{ params|join(', ') }}):
+    n = {{ people_n }}
+    k = {{ step }}
+    if n < 1 or k < 1:
+        raise ValueError('n and k must be positive')
+    people = list(range({{ base }}, {{ base }} + n))
+    idx = ({{ begin }} - {{ base }}) % n
+    order = []
+    while people:
+        idx = (idx + k - 1) % len(people)
+        order.append(people.pop(idx))
+{% if form == 'order' %}
+    return order
+{% else %}
+    return order[-1]
+{% endif %}

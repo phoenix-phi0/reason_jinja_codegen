@@ -1,0 +1,9 @@
+python_type(E,F,str) :- field(E,F,text).
+python_type(E,F,int) :- field(E,F,integer).
+python_type(E,F,bool) :- field(E,F,boolean).
+check(E,F,type) :- python_type(E,F,T).
+check(E,F,nonempty) :- required(E,F), python_type(E,F,str).
+emit(model.py.j2,P,E) :- target(python), entity(E,P).
+emit(module.py.j2,P,M) :- target(python), module(M,P).
+emit(package.py.j2,P,K) :- target(python), package(K,P).
+async_function(M,F) :- function_mode(M,F,async).

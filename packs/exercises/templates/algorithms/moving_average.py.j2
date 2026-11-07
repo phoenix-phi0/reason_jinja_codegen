@@ -1,0 +1,16 @@
+from collections import deque
+
+def solve(values, window):
+    if type(window) is not int or window <= 0:
+        raise ValueError('positive integer window required')
+    queue = deque()
+    total = 0
+    result = []
+    for value in values:
+        queue.append(value)
+        total += value
+        if len(queue) > window:
+            total -= queue.popleft()
+        if len(queue) == window:
+            result.append(total / window)
+    return result

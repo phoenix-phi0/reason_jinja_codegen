@@ -1,0 +1,30 @@
+{%- from 'composition.j2' import source_expr with context -%}
+{%- set tests = relations.rows('pair_test', key) -%}
+{%- set bounds = relations.rows('pair_bound', key) -%}
+{%- set outs = relations.rows('pair_output', key) -%}
+{%- set form = outs[0][-1] if outs else 'count' -%}
+{%- set OPS = {'sum': 'a + b', 'difference': 'a - b', 'abs_difference': 'abs(a - b)', 'product': 'a * b'} -%}
+{%- set CMP = {'lt': '<', 'le': '<=', 'gt': '>', 'ge': '>=', 'eq': '==', 'ne': '!='} -%}
+{%- macro bound_value(b) -%}{{ b[3] if relations.has('arg', key, b[3], 'int') else (b[3]|int) }}{%- endmacro -%}
+{%- macro mod_value(t) -%}{{ t[2] if relations.has('arg', key, t[2], 'int') else (t[2]|int) }}{%- endmacro -%}
+{%- set conds = ['True'] -%}
+{%- for t in tests %}{% set _ = conds.append('(' ~ OPS[t[1]] ~ ') % ' ~ mod_value(t) ~ ' == ' ~ (t[3]|int)) %}{% endfor -%}
+{%- for b in bounds %}{% set _ = conds.append('(' ~ OPS[b[1]] ~ ') ' ~ CMP[b[2]] ~ ' ' ~ bound_value(b)) %}{% endfor -%}
+def {{ fname|default('solve') }}({{ (fparams|default(params))|join(', ') }}):
+    values = list({{ source_expr(key) }})
+    total = 0
+    good = 0
+    for i in range(len(values)):
+        for j in range(i + 1, len(values)):
+            a = values[i]
+            b = values[j]
+            total += 1
+            if {{ conds|join(' and ') }}:
+                good += 1
+{% if form == 'exists' %}
+    return good > 0
+{% elif form == 'all' %}
+    return good == total
+{% else %}
+    return good
+{% endif %}

@@ -1,0 +1,12 @@
+{
+  "facts": {
+    "entity": [["user", "models/user.py"], ["product", "models/product.py"]],
+    "field": [["user", "name", "text"], ["user", "age", "integer"], ["user", "active", "boolean"], ["product", "title", "text"], ["product", "stock", "integer"]],
+    "required": [["user", "name"], ["product", "title"]]
+  },
+  "data": {
+    "user": {"name": "User", "fields": ["name", "age", "active"]},
+    "product": {"name": "Product", "fields": ["title", "stock"]},
+    "all": {}
+  }
+}

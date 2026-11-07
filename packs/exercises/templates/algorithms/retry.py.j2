@@ -1,0 +1,9 @@
+def solve(operation, attempts=3):
+    if type(attempts) is not int or attempts <= 0:
+        raise ValueError('positive integer attempts required')
+    for index in range(attempts):
+        try:
+            return operation()
+        except Exception:
+            if index == attempts - 1:
+                raise

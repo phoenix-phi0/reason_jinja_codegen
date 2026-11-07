@@ -1,0 +1,12 @@
+{% raw %}
+def solve(strs):
+    if not strs:
+        return ""
+    lo = min(strs)
+    hi = max(strs)
+    n = min(len(lo), len(hi))
+    i = 0
+    while i < n and lo[i] == hi[i]:
+        i += 1
+    return lo[:i]
+{% endraw %}

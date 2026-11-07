@@ -1,0 +1,8 @@
+{%- set walk = relations.rows('walk', key)|map('last')|list -%}
+def solve({{ params|join(', ') }}):
+    sizes = grid_component_sizes({{ relations.one('grid', key) }}, {{ walk|sort|pyrepr }}, {{ relations.one('neighbours', key) == '8' }})
+{% if relations.has('ask', key, 'largest_component') %}
+    return max(sizes, default=0)
+{% else %}
+    return len(sizes)
+{% endif %}

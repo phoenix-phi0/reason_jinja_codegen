@@ -1,0 +1,51 @@
+{
+  "rules": [
+    "rules.dl"
+  ],
+  "facts": {
+    "supported": [
+      [
+        "binary_search"
+      ],
+      [
+        "merge_intervals"
+      ],
+      [
+        "topological_sort"
+      ],
+      [
+        "shortest_path"
+      ],
+      [
+        "csv_totals"
+      ],
+      [
+        "moving_average"
+      ],
+      [
+        "flatten"
+      ],
+      [
+        "chunks"
+      ],
+      [
+        "retry"
+      ],
+      [
+        "lru_cache"
+      ],
+      [
+        "bank_account"
+      ],
+      [
+        "async_map"
+      ],
+      [
+        "config_validation"
+      ],
+      [
+        "stable_unique"
+      ]
+    ]
+  }
+}

@@ -1,0 +1,5 @@
+{%- set OPS = {'difference': 'main - anti', 'reverse_difference': 'anti - main', 'sum': 'main + anti', 'main': 'main', 'anti': 'anti'} -%}
+{%- set op = relations.rows('diagonal_op', key)[0][-1] -%}
+def solve({{ params|join(', ') }}):
+    main, anti = matrix_diagonal_sums({{ relations.one('iterate', key) }}, {{ relations.one('center_mode', key)|pyrepr }})
+    return {{ OPS[op] }}

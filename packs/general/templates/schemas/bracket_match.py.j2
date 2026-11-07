@@ -1,0 +1,7 @@
+{%- from 'composition.j2' import source_expr with context -%}
+{%- set pairs = [] -%}
+{%- for r in relations.rows('bracket_pair', key) %}{% set _ = pairs.append([r[1], r[2]]) %}{% endfor -%}
+{%- set outs = relations.rows('bracket_output', key) -%}
+{%- set form = outs[0][-1] if outs else 'balanced' -%}
+def {{ fname|default('solve') }}({{ (fparams|default(params))|join(', ') }}):
+    return bracket_scan({{ source_expr(key) }}, {{ pairs|sort|pyrepr }}, {{ form|pyrepr }})

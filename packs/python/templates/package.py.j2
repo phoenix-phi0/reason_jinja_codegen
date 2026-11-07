@@ -1,0 +1,4 @@
+{% for statement in item.get('imports', []) %}
+{{ statement }}
+{% endfor %}
+__all__ = {{ item.get('exports', [])|pyrepr }}

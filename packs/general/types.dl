@@ -1,0 +1,65 @@
+% Answer type of a problem, derived from its schema and output facts: int, bool, string, int_list,
+% string_list, list_of_lists; nullable(P) when None is a possible answer. The driver compares this with the
+% JSON types of the tests' expected values before generating code, so a mistranslated question is caught early.
+% Fixed file; growth adds answer_type rules for new schemas in learned.dl.
+
+int_agg(sum) :- .
+int_agg(count) :- .
+int_agg(product) :- .
+int_agg(max) :- .
+int_agg(min) :- .
+int_agg(distinct_count) :- .
+has_to_int(P) :- map(P,to_int).
+answer_type(P,int) :- schema(P,seq_fold), aggregate(P,A), int_agg(A).
+answer_type(P,string) :- schema(P,seq_fold), aggregate(P,join).
+answer_type(P,int_list) :- schema(P,seq_fold), aggregate(P,list), iterate(P,A), arg(P,A,int_list).
+answer_type(P,int_list) :- schema(P,seq_fold), aggregate(P,list), has_to_int(P).
+answer_type(P,string_list) :- schema(P,seq_fold), aggregate(P,list), iterate(P,A), arg(P,A,string), not has_to_int(P).
+nullable(P) :- if_empty(P,none).
+nullable(P) :- no_answer(P,none).
+
+answer_type(P,int) :- schema(P,grid_components).
+answer_type(P,int) :- schema(P,grid_bfs).
+
+answer_type(P,int) :- schema(P,knapsack), ask(P,min_count).
+answer_type(P,int) :- schema(P,knapsack), ask(P,count_ways).
+answer_type(P,bool) :- schema(P,knapsack), ask(P,feasible).
+
+has_at_least(P) :- at_least(P,N).
+has_interval_output(P) :- interval_output(P,F).
+has_pair_output(P) :- pair_output(P,F).
+bool_pair_output(exists) :- .
+bool_pair_output(all) :- .
+answer_type(P,int) :- schema(P,interval_scan), ask(P,max_overlap), not has_at_least(P).
+answer_type(P,bool) :- schema(P,interval_scan), ask(P,max_overlap), has_at_least(P).
+answer_type(P,list_of_lists) :- schema(P,interval_scan), ask(P,merge_intervals), not has_interval_output(P).
+answer_type(P,list_of_lists) :- schema(P,interval_scan), ask(P,merge_intervals), interval_output(P,intervals).
+answer_type(P,int) :- schema(P,interval_scan), ask(P,merge_intervals), interval_output(P,F), F != intervals.
+answer_type(P,int) :- schema(P,interval_scan), ask(P,covered_length).
+answer_type(P,int) :- schema(P,interval_scan), ask(P,overlap_pairs), not has_pair_output(P).
+answer_type(P,int) :- schema(P,interval_scan), ask(P,overlap_pairs), pair_output(P,count).
+answer_type(P,bool) :- schema(P,interval_scan), ask(P,overlap_pairs), pair_output(P,F), bool_pair_output(F).
+
+answer_type(P,int) :- schema(P,pair_count), not has_pair_output(P).
+answer_type(P,int) :- schema(P,pair_count), pair_output(P,count).
+answer_type(P,bool) :- schema(P,pair_count), pair_output(P,F), bool_pair_output(F).
+
+has_bracket_output(P) :- bracket_output(P,F).
+answer_type(P,bool) :- schema(P,bracket_match), not has_bracket_output(P).
+answer_type(P,bool) :- schema(P,bracket_match), bracket_output(P,balanced).
+answer_type(P,int) :- schema(P,bracket_match), bracket_output(P,F), F != balanced.
+
+has_run_output(P) :- run_output(P,F).
+answer_type(P,string) :- schema(P,run_encode), not has_run_output(P).
+answer_type(P,string) :- schema(P,run_encode), run_output(P,encoded).
+answer_type(P,list_of_lists) :- schema(P,run_encode), run_output(P,pairs).
+answer_type(P,int) :- schema(P,run_encode), run_output(P,run_count).
+answer_type(P,int) :- schema(P,run_encode), run_output(P,longest_run).
+
+answer_type(P,int) :- schema(P,seq_rank).
+answer_type(P,int) :- schema(P,seq_reduce).
+answer_type(P,int) :- schema(P,matrix_diagonals).
+answer_type(P,list_of_lists) :- schema(P,matrix_transform).
+
+has_answer_type(P) :- answer_type(P,T).
+error(two_answer_types,P) :- answer_type(P,A), answer_type(P,B), A != B.

@@ -1,0 +1,29 @@
+{#- A chain of stages (stage I is the sub-problem relations.one('substage', key, I)). A seq_fold stage I < n is rendered inline into the variable _sI,
+    the last stage returns; the stages are straight-line code in solve(), outside any loop. Any other schema is rendered by its own template as a
+    function _stageI(params, _s1, ..., _s(I-1)) above solve() and called once from solve(); general_grow.glue_violations checks those functions as glue too. -#}
+{%- set pkey = key -%}
+{%- set n = relations.rows('substage', pkey)|length -%}
+{%- for i in range(1, n + 1) -%}
+{%- set key = relations.one('substage', pkey, i|string) -%}
+{%- if relations.one('schema', key) != 'seq_fold' -%}
+{%- set fname = '_stage' ~ i -%}
+{%- set fps = [] -%}
+{%- for j in range(1, i) %}{% set _ = fps.append('_s' ~ j) %}{% endfor -%}
+{%- set fparams = params + fps -%}
+{% include 'schemas/' ~ relations.one('schema', key) ~ '.py.j2' %}
+
+
+{% endif -%}
+{%- endfor -%}
+def solve({{ params|join(', ') }}):
+{% for i in range(1, n + 1) %}
+{%- set key = relations.one('substage', pkey, i|string) -%}
+{%- set inline = true -%}
+{%- set cargs = [] -%}
+{%- for p in params %}{% set _ = cargs.append(p) %}{% endfor -%}
+{%- for j in range(1, i) %}{% set _ = cargs.append('_s' ~ j) %}{% endfor -%}
+{%- set ret = 'return' if i == n else '_s' ~ i ~ ' =' %}
+    # stage {{ i }}
+{% if relations.one('schema', key) != 'seq_fold' %}    {{ ret }} _stage{{ i }}({{ cargs|join(', ') }})
+{% else %}{% include 'schemas/' ~ relations.one('schema', key) ~ '.py.j2' %}{% endif %}
+{% endfor %}

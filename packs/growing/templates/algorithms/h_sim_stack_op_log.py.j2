@@ -1,0 +1,20 @@
+{% raw %}
+def solve(ops):
+    stack = []
+    out = []
+    for op in ops:
+        op = op.strip()
+        if op.startswith("push"):
+            stack.append(int(op[4:].strip()))
+        elif op == "pop":
+            if stack:
+                out.append(stack.pop())
+            else:
+                out.append("EMPTY")
+        elif op == "top":
+            if stack:
+                out.append(stack[-1])
+            else:
+                out.append("EMPTY")
+    return [out, stack]
+{% endraw %}
